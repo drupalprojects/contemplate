@@ -12,10 +12,8 @@ function contemplate_install(){
         KEY type (type)
         ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       
-      update_sql("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
-      break;
-      
-      
+      db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
+      break;      
     }
   drupal_set_message(t('Database tables for ConTemplate module have been installed.'));
 }
