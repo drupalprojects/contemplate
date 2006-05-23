@@ -452,14 +452,19 @@ function contemplate_eval($tmplt, $obj){
 
 
 function contemplate_cck_get_fields($type_name){
-  $types = _content_types();
-  $return = array();
-  if($type = $types[$type_name]){
-    // if this is a CCK field
-    foreach($type->fields as $field_name => $field){
-      $return[] = theme('contemplate_field', $field);      
+  if(module_exist('content')){
+    $types = _content_types();
+    $return = array();
+    if($type = $types[$type_name]){
+      // if this is a CCK field
+      foreach($type->fields as $field_name => $field){
+        $return[] = theme('contemplate_field', $field);      
+      }
+      $return = implode("\n", $return);
     }
-    $return = implode("\n", $return);
+    else {
+      $return = FALSE;
+    }
   }
   else {
     $return = FALSE;
