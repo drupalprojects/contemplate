@@ -298,7 +298,7 @@ function contemplate_delete($type){
 function contemplate_node_views($type){
   $nid = db_result(db_query('SELECT nid FROM {node} WHERE type = "%s" ORDER BY created DESC', $type));
   if($nid){
-    $node = node_load($nid);  
+    $node = node_load($nid);
     $body = contemplate_node_view($node, FALSE, TRUE); // I realize I'm making an assumption here
     $teaser = contemplate_node_view($node, TRUE, FALSE); // again: assumption... would probably be better to allow all variations of teaser, page...
     return array('body'=>$body, 'teaser'=>$teaser);
@@ -453,11 +453,10 @@ function contemplate_eval($tmplt, $obj){
 
 function contemplate_cck_get_fields($type_name){
   if(module_exist('content')){
-    $types = _content_types();
     $return = array();
-    if($type = $types[$type_name]){
+    if($type = content_types($type_name)){
       // if this is a CCK field
-      foreach($type->fields as $field_name => $field){
+      foreach($type['fields'] as $field_name => $field){
         $return[] = theme('contemplate_field', $field);      
       }
       $return = implode("\n", $return);
