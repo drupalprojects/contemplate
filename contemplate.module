@@ -77,6 +77,13 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   switch ($op) {
 
     case 'view':
+      /*
+      print "teaser: ";
+      print_r($teaser);
+      print "<br />page: ";
+      print_r($page);
+      print "<br />";
+      */
     case 'rss item':
       if ($template = contemplate_get_template($node->type)){
         if($teaser){
@@ -244,7 +251,8 @@ function contemplate_get_template($type){
   
   if(!$types[$type]){
     $types[$type] = db_fetch_object(db_query('SELECT body, teaser, type FROM {contemplate} WHERE type = "%s"', $type));
-  } 
+  }
+  
   return $types[$type];
 }
 
@@ -454,7 +462,21 @@ function contemplate_eval($tmplt, $obj){
 function contemplate_cck_get_fields($type_name){
   if(module_exist('content')){
     $return = array();
-    if($type = content_types($type_name)){
+    
+    // for compatibility with both CVS and 4.7 versions of CCK
+    // remove conditionals once "content_types()" is committed to 4.7
+    
+    // start remove
+    if(function_exists('content_types')){
+      $type = content_types($type_name); //   <-- keep this part
+    }
+    else {
+      $types = _content_types();
+      $type = (array)$types[$type_name];
+    }
+    // end remove
+    
+    if($type){
       // if this is a CCK field
       foreach($type['fields'] as $field_name => $field){
         $return[] = theme('contemplate_field', $field);      
