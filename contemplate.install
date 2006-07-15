@@ -5,7 +5,7 @@ function contemplate_install(){
     switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      db_query("CREATE TABLE contemplate (
+      db_query("CREATE TABLE {contemplate} (
         type varchar(32) NOT NULL default '',
         teaser text NOT NULL,
         body text NOT NULL,
