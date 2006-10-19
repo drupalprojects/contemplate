@@ -249,7 +249,7 @@ function contemplate_get_template($type){
   //only load each template once per page hit
   static $types = array();
   
-  if(!$types[$type]){
+  if(!isset($types[$type])){
     $types[$type] = db_fetch_object(db_query('SELECT body, teaser, type FROM {contemplate} WHERE type = "%s"', $type));
   }
   
