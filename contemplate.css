@@ -1,15 +1,16 @@
 div.contemplate-input {
-  width: 45%;
+  width: 49%;
   float: left;
   clear: both;
 }
 
-div.contemplate-input form-textarea {
+div.contemplate-input .form-textarea {
   height: 200px;
+  border: 1px solid #666;
 }
 
 div.contemplate-tips {
-  width: 45%;
+  width: 49%;
   float: left;
 }
 
