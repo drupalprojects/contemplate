@@ -22,13 +22,16 @@ function contemplate_install(){
 }
 
 function contemplate_update_1(){
+  $ret = array();
+
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-       db_add_column($ret, 'contemplate', 'rss', 'text', array('not null' => TRUE));
-       db_add_column($ret, 'contemplate', 'enclosure', 'varchar(128)', array('not null' => TRUE));
-       db_add_column($ret, 'contemplate', 'flags', 'int(8)', array('not null' => TRUE, 'default' => '7', 'unsigned' => TRUE));
+      $ret[] = update_sql('ALTER TABLE {contemplate} ADD rss text NOT NULL');
+      $ret[] = update_sql('ALTER TABLE {contemplate} ADD enclosure varchar(128) NOT NULL');
+      $ret[] = update_sql("ALTER TABLE {contemplate} ADD flags int(8) unsigned NOT NULL default '7'"); 
       break;
     }
+
   return $ret;
 }
