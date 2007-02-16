@@ -1,4 +1,4 @@
-# $Id$
+# $Id: ru.po,v 1.1.2.1 2007/02/04 08:17:55 maynich Exp $
 #
 # LANGUAGE translation of Drupal (modules/contact/contact.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: contemplate\n"
 "POT-Creation-Date: 2007-01-14 15:05+0600\n"
-"PO-Revision-Date: 2007-02-04 14:13+0600\n"
+"PO-Revision-Date: 2007-02-17 01:32+0600\n"
 "Last-Translator: Maynichev <maynich@gmail.com>\n"
 "Language-Team: Maynichev <maynich@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -93,6 +93,9 @@ msgid ""
 "    <p>An example node has been loaded and it's properties appear below. Click on the the property names to add them to your template.</p>\r\n"
 "  "
 msgstr ""
+"\r\n"
+"    <p>Пример материала загружен, ниже показаны все его компоненты. Кликните на имени компонента и добавьте его в Ваш шаблон.</p>\r\n"
+"  "
 
 #: modules/contemplate/contemplate.module:215
 msgid "Affect body output"
@@ -112,7 +115,7 @@ msgstr "Применить к выводу RSS"
 
 #: modules/contemplate/contemplate.module:254
 msgid "Note that if you do not enable this, Drupal will use either the teaser or body as specified in your <a href=\"@url\">RSS publishing settings</a>."
-msgstr ""
+msgstr "Если вы не включите это, Drupal будет использовать параметры для краткого представления или для самого материала, как это представлено в <a href=\"@url\">Настройке публикации RSS</a>."
 
 #: modules/contemplate/contemplate.module:259
 msgid "RSS Template"
@@ -156,7 +159,7 @@ msgstr "Шаблон %type сохранен."
 
 #: modules/contemplate/contemplate.module:453
 msgid "No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts."
-msgstr ""
+msgstr "Не существует материала типа %type, который может использоваться в качестве образца. Создайте  материал %type, а затем вернитесь сюда, чтобы посмотреть его обработку."
 
 #: modules/contemplate/contemplate.module:0
 msgid "contemplate"
