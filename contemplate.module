@@ -21,7 +21,8 @@ function contemplate_help($section) {
   switch ($section) {
     case 'admin/content/templates/'. arg(3):
     case 'admin/content/types/'. arg(3) .'/template':
-      return t('<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>'. theme('more_help_link', url('admin/help/contemplate')));
+      return t('<p>Enable the textareas by enabling the checkbox above each. Click on content attributes on the right to insert the appropriate PHP <code>print</code> statements at your cursor position in the textareas on the left.</p>
+<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>'. theme('more_help_link', url('admin/help/contemplate')));
     case 'admin/help#contemplate':
       return t('<p>The Content Templates (a.k.a. contemplate) module allows modification of the teaser and body fields using administrator defined templates. These templates use PHP code and all of the node object variables are available for use in the template. An example node object is displayed and it is as simple as clicking on its properties to add them to the current template.</p>
 
@@ -31,7 +32,7 @@ function contemplate_help($section) {
 
 <h3>Creating templates</h3>
 
-<p>Enter PHP code similar to <a href="http://drupal.org/node/11816">PHPTemplate</a>. The main difference is that you only have access to the $node object. However, PHPTemplate templates only affect output to the page. Contemplate additionally affects display in RSS feeds and search results.</p>');
+<p>Enter PHP code similar to <a href="http://drupal.org/node/11816">PHPTemplate</a>. The main difference is that you only have access to the $node object. However, PHPTemplate templates only affect output to the page. Contemplate affects display in all site themes as well as RSS feeds and search results.</p>');
   }
 }
 
@@ -75,7 +76,7 @@ function contemplate_menu($may_cache) {
  * Implementation of hook_perm()
  *
  */
-function contemplate_perm(){
+function contemplate_perm() {
   return array('administer templates');
 }
 
@@ -87,33 +88,33 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   switch ($op) {
 
     case 'rss item':
-      if ($template = contemplate_get_template($node->type)){
-	      if (CONTEMPLATE_RSS_ENABLED & $template->flags && trim($template->rss)) { // only if there's content in teaser field
-	        $rss = contemplate_eval($template->rss, $node);
-	        // set both teaser and body because we don't know how they've set Drupal
-	        $node->teaser = $rss;
-	        $node->body = $rss;
-	        if ($template->enclosure) {
-	          if ($file = contemplate_eval_enclosure($template->enclosure, $node)) {
-		          return array(
-		            array(
-		              'key' => 'enclosure',
-		              'attributes' => array(
-		                'url' => file_create_url($file->filepath),
-		                'length' => $file->filesize,
-		                'type' => $file->filemime
-		              )
-		            )
-		          );
-	          }
-	        }
-	      }
+      if ($template = contemplate_get_template($node->type)) {
+        if (CONTEMPLATE_RSS_ENABLED & $template->flags && trim($template->rss)) { // only if there's content in teaser field
+          $rss = contemplate_eval($template->rss, $node);
+          // set both teaser and body because we don't know how they've set Drupal
+          $node->teaser = $rss;
+          $node->body = $rss;
+          if ($template->enclosure) {
+            if ($file = contemplate_eval_enclosure($template->enclosure, $node)) {
+              return array(
+                array(
+                  'key' => 'enclosure',
+                  'attributes' => array(
+                    'url' => file_create_url($file->filepath),
+                    'length' => $file->filesize,
+                    'type' => $file->filemime
+                  )
+                )
+              );
+            }
+          }
+        }
       }
       break;
     
     case 'alter':
-      if ($template = contemplate_get_template($node->type)){
-        if($teaser){
+      if ($template = contemplate_get_template($node->type)) {
+        if ($teaser) {
           if (CONTEMPLATE_TEASER_ENABLED & $template->flags && trim($template->teaser)) { // only if there's content in teaser field
             $node->teaser = contemplate_eval($template->teaser, $node);
           }
@@ -121,6 +122,13 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         elseif (CONTEMPLATE_BODY_ENABLED & $template->flags && trim($template->body)) { // only if there's content in the body field
           $node->body = contemplate_eval($template->body, $node);
         }
+      }
+      break;
+      
+    case 'update index':
+      if ($template = contemplate_get_template($node->type)) {
+        $node->body = contemplate_eval($template->body, $node);
+        return contemplate_eval($template->body, $node);
       }
       break;
         
@@ -131,10 +139,10 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  * Admin page... list out the node types
  *
  */
-function contemplate_admin(){
+function contemplate_admin() {
   $types = node_get_types();
   $templates = contemplate_get_templates();
-  foreach($types as $type){
+  foreach ($types as $type) {
     $rows[] = array(
       $type->name,
       l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
@@ -155,13 +163,13 @@ function contemplate_admin(){
  *
  * @param string $type
  */
-function contemplate_edit_type_form($type = NULL){
+function contemplate_edit_type_form($type = NULL) {
   
   $example = contemplate_examples($type);
   
   $template = contemplate_get_template($type);
   
-  if($default = contemplate_cck_get_fields($type)){
+  if ($default = contemplate_cck_get_fields($type)) {
     $default_teaser = $default_body = $default;
   }
   else {
@@ -177,13 +185,13 @@ function contemplate_edit_type_form($type = NULL){
   );
   
   $form['teaser']['teaser-enable'] = array(
-  	'#type' => 'checkbox',
+    '#type' => 'checkbox',
     '#title' => '<strong>'. t('Affect teaser output') .'</strong>',
     '#default_value' => CONTEMPLATE_TEASER_ENABLED & $template->flags ? TRUE : FALSE,
-    '#attributes' => array('toggletarget' => '#edit-teaser'),
+    '#attributes' => array('toggletarget' => '#edit-teaserfield'),
   );
   
-  $form['teaser']['teaser'] = array(
+  $form['teaser']['teaserfield'] = array(
     '#type' => 'textarea',
     '#title' => t('Teaser Template'),
     '#default_value' => $template->teaser ? $template->teaser : $default_teaser,
@@ -200,7 +208,7 @@ function contemplate_edit_type_form($type = NULL){
   
   $form['teaser']['teaser_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><label>Teaser Variables:</label><div id="edit-teaser-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] .'</div></div>'
+    '#value' => '<div class="contemplate-tips form-item"><label>Teaser Variables:</label><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] .'</div><div class="description">Fields marked with <span style="color:red">**</span> are insecure and need to be wrapped with check_plain()</div></div>'
   );
   
   $form['body'] = array(
@@ -211,13 +219,13 @@ function contemplate_edit_type_form($type = NULL){
   );
   
   $form['body']['body-enable'] = array(
-  	'#type' => 'checkbox',
+    '#type' => 'checkbox',
     '#title' => '<strong>'. t('Affect body output') .'</strong>',
     '#default_value' => CONTEMPLATE_BODY_ENABLED & $template->flags ? TRUE : FALSE,
-    '#attributes' => array('toggletarget' => '#edit-body'),
+    '#attributes' => array('toggletarget' => '#edit-bodyfield'),
   );
   
-  $form['body']['body'] = array(
+  $form['body']['bodyfield'] = array(
     '#type' => 'textarea',
     '#title' => t('Body Template'),
     '#default_value' => $template->body ? $template->body : $default_body,
@@ -234,7 +242,7 @@ function contemplate_edit_type_form($type = NULL){
   
   $form['body']['body_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><label>Body Variables:</label><div id="edit-body-keys" class="contemplate-scroller resizable">'. $intro . $example['body'] .'</div></div>'
+    '#value' => '<div class="contemplate-tips form-item"><label>Body Variables:</label><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">'. $intro . $example['body'] .'</div><div class="description">Fields marked with <span style="color:red">**</span> are insecure and need to be wrapped with check_plain()</div></div>'
   );
   
   /* START RSS STUFF */
@@ -247,7 +255,7 @@ function contemplate_edit_type_form($type = NULL){
   );
   
   $form['rss']['rss-enable'] = array(
-  	'#type' => 'checkbox',
+    '#type' => 'checkbox',
     '#title' => '<strong>'. t('Affect RSS output') .'</strong>',
     '#default_value' => CONTEMPLATE_RSS_ENABLED & $template->flags ? TRUE : FALSE,
     '#attributes' => array('toggletarget' => '#edit-rss'),
@@ -270,7 +278,7 @@ function contemplate_edit_type_form($type = NULL){
   
   $form['rss']['rss_example'] = array(
     '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><label>Node Variables:</label><div id="edit-rss-keys" class="contemplate-scroller resizable">'. $intro . $example['rss'] .'</div></div>'
+    '#value' => '<div class="contemplate-tips form-item"><label>Node Variables:</label><div id="edit-rss-keys" class="contemplate-scroller resizable">'. $intro . $example['rss'] .'</div><div class="description">Fields marked with <span style="color:red">**</span> are insecure and need to be wrapped with check_plain()</div></div>'
   );
   
   $form['rss'][] = array(
@@ -285,12 +293,12 @@ function contemplate_edit_type_form($type = NULL){
   if (is_array($contemplate_fids)) {
     $contemplate_fids = drupal_map_assoc(array_unique($contemplate_fids));
     $contemplate_fids = array(0 => t('&lt;none&gt; (other modules may add)')) + $contemplate_fids;
-	  $form['rss']['enclosure'] = array(
-	    '#type' => 'radios',
-	    '#title' => t('RSS enclosures'),
-	    '#options' => $contemplate_fids,
-	    '#default_value' => $template->enclosure,
-	  );
+    $form['rss']['enclosure'] = array(
+      '#type' => 'radios',
+      '#title' => t('RSS enclosures'),
+      '#options' => $contemplate_fids,
+      '#default_value' => $template->enclosure,
+    );
   }
   
   /* END RSS STUFF */ 
@@ -318,11 +326,11 @@ function contemplate_edit_type($type = NULL) {
   
   $types = node_get_types();
   
-  if(!$types[$type]){ // if the argument isn't a valid node type, output admin page
+  if (!$types[$type]) { // if the argument isn't a valid node type, output admin page
     return contemplate_admin();
   }
   drupal_set_title(t('Template for %type', array("%type" => $types[$type]->name))); 
-  if (arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'templates' && arg(3)){
+  if (arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'templates' && arg(3)) {
     $breadcrumbs = drupal_get_breadcrumb(); 
     $breadcrumbs[] = l(t('Templates'), 'admin/content/templates'); 
     drupal_set_breadcrumb($breadcrumbs);
@@ -336,12 +344,12 @@ function contemplate_edit_type($type = NULL) {
  * Get a single template
  *
  */
-function contemplate_get_template($type){
+function contemplate_get_template($type) {
   //only load each template once per page hit
   static $types = array();
   
-  if(!isset($types[$type])){
-    $types[$type] = db_fetch_object(db_query('SELECT * FROM {contemplate} WHERE type = "%s"', $type));
+  if (!isset($types[$type])) {
+    $types[$type] = db_fetch_object(db_query("SELECT * FROM {contemplate} WHERE type = '%s'", $type));
   }
   
   return $types[$type];
@@ -352,9 +360,9 @@ function contemplate_get_template($type){
  *
  * @return unknown
  */
-function contemplate_get_templates(){
-  $result = db_query('SELECT * FROM {contemplate}');
-  while($r = db_fetch_object($result)){
+function contemplate_get_templates() {
+  $result = db_query("SELECT * FROM {contemplate}");
+  while($r = db_fetch_object($result)) {
     $templates[$r->type]['teaser'] = $r->teaser;
     $templates[$r->type]['body'] = $r->body;
     $templates[$r->type]['rss'] = $r->rss;
@@ -363,7 +371,7 @@ function contemplate_get_templates(){
   return $templates;
 }
 
-function contemplate_edit_type_form_submit($form_id, $form_values){
+function contemplate_edit_type_form_submit($form_id, $form_values) {
   $op = isset($_POST['op']) ? $_POST['op'] : '';
   if ($op == t('Reset')) {
     contemplate_delete($form_values['type']);
@@ -372,22 +380,22 @@ function contemplate_edit_type_form_submit($form_id, $form_values){
   else {
     contemplate_save($form_values);
     drupal_set_message(t('%type template saved.', array('%type' => $form_values['type'])));
-    if (arg(0) == 'admin' && arg(1) == 'node' && arg(2) == 'template'){
+    if (arg(0) == 'admin' && arg(1) == 'node' && arg(2) == 'template') {
       drupal_goto('admin/content/templates');
     }
   }
 }
 
-function contemplate_save($edit){
+function contemplate_save($edit) {
   contemplate_delete($edit['type']);
   $flags |= $edit['teaser-enable'] ? CONTEMPLATE_TEASER_ENABLED : 0;
   $flags |= $edit['body-enable'] ? CONTEMPLATE_BODY_ENABLED : 0;
   $flags |= $edit['rss-enable'] ? CONTEMPLATE_RSS_ENABLED : 0;
-  return db_query('INSERT INTO {contemplate} (type, teaser, body, rss, enclosure, flags) VALUES ("%s", "%s", "%s", "%s", "%s", %d)', $edit['type'], $edit['teaser'], $edit['body'], $edit['rss'], $edit['enclosure'], $flags);
+  return db_query("INSERT INTO {contemplate} (type, teaser, body, rss, enclosure, flags) VALUES ('%s', '%s', '%s', '%s', '%s', %d)", $edit['type'], $edit['teaserfield'], $edit['bodyfield'], $edit['rss'], $edit['enclosure'], $flags);
   
 }
 
-function contemplate_delete($type){
+function contemplate_delete($type) {
   return db_query('DELETE FROM {contemplate} WHERE type = "%s"', $type);
 }
 
@@ -400,27 +408,13 @@ function contemplate_delete($type){
  *   node type
  * @return array
  */
-function contemplate_node_views($type){
+function contemplate_node_views($type) {
   // get the nid of the latest node of this type
-  $nid = db_result(db_query('SELECT nid FROM {node} WHERE type = "%s" ORDER BY created DESC', $type));
-  if($nid){
-    $node = node_load($nid);
-    $bodynode = contemplate_node_view($node, FALSE, TRUE);
-    unset($bodynode->teaser);
-    
-    // for debugging...
-    // I'm outputting the length of the string representation of the $bodynode object so I can compare it
-    // drupal_set_message('checksum/length of $bodynode: '. strlen(print_r($bodynode, TRUE))); // outputs the correct value
-    
-    $teasernode = contemplate_node_view($node, TRUE, FALSE);
-    unset($teasernode->body);
-    
-    // drupal_set_message('checksum/length of $teasernode: '. strlen(print_r($teasernode, TRUE)));
-    
-    // here's the bug... In PHP5 this next line
-    // outputs the same value as $teasernode... NOT $bodynode... very odd
-    // In PHP4 it's fine
-    // drupal_set_message('checksum/length of $bodynode: '. strlen(print_r($bodynode, TRUE))); 
+  $nid = db_result(db_query("SELECT nid FROM {node} WHERE type = '%s' ORDER BY created DESC", $type));
+  if ($nid) {
+    $bodynode = contemplate_node_view(node_load($nid), FALSE, TRUE);
+        
+    $teasernode = contemplate_node_view(node_load($nid), TRUE, FALSE);
     
     return array('body'=>$bodynode, 'teaser'=>$teasernode);
   }
@@ -438,15 +432,15 @@ function contemplate_node_views($type){
  * @return
  *   an array containing the 'body' and 'teaser' versions of the 
  */
-function contemplate_examples($type){
+function contemplate_examples($type) {
   $path = drupal_get_path('module', 'contemplate');
   drupal_add_js($path .'/contemplate.js');
   drupal_add_js($path .'/divresizer.js');
   drupal_add_css($path .'/contemplate.css');
   
-  if($views = contemplate_node_views($type)){
-    $boutput = contemplate_array_variables((array)$views['body'], 'body');
-    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaser');
+  if ($views = contemplate_node_views($type)) {
+    $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield');
+    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaserfield');
     $routput = contemplate_array_variables((array)$views['teaser'], 'rss');
   }
   else {
@@ -458,9 +452,9 @@ function contemplate_examples($type){
 
 
 /**
- * Recursive function goes through node object
- * returns html representation of the node
- * strings are clickable and insert into teaser/body fields
+ * Recursive (and therefore magical) function goes through node object returns
+ * html representation of the node strings are clickable and insert into
+ * teaser/body fields
  *
  * @param $array
  *   array to recurse through
@@ -472,21 +466,21 @@ function contemplate_examples($type){
  *   used by recursion
  * @return unknown
  */
-function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE){
+function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE) {
   global $contemplate_fids;
   
-  if(is_object($array)){
+  if (is_object($array)) {
     $array = (array)$array;
   }
-  if(is_array($array)){
+  if (is_array($array)) {
     $output .= "<dl>\n";
-    foreach($array as $field => $value){
-      if($parents){
-        if($object){
+    foreach($array as $field => $value) {
+      if ($parents) {
+        if ($object) {
           $field = $parents .'->'.$field;
         }
         else {
-          if(is_int($field)){
+          if (is_int($field)) {
             $field = $parents .'['. $field .']';
           }
           else {
@@ -499,22 +493,31 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
       }
       
       $type = "";
-      if(!is_string($value)){
+      if (!is_string($value)) {
         $type = " (". gettype($value) .")";
       }
       
-      if(!is_array($value) && !is_object($value)){
-        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), '<?php print \$node->". addslashes($field) ." ?>');return false;\" title=\"insert this variable into $target\">\$node->$field</a>$type</dt>\n";
+      if (!is_array($value) && !is_object($value)) {
+        if ($field == 'title' || (substr($field, -9) == "['value']")) {
+          $security = t(" <span style='color:red;font-weight:bold'>**</span>");
+          $insert = "'<?php print check_plain(\$node->". addslashes($field) .") ?>'";
+        }
+        else {
+          $security = '';
+          $insert = "'<?php print \$node->". addslashes($field) ." ?>'";
+        }
+        
+        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return false;\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
       }
       else {
         $output .= "<dt>\$node->$field$type</dt>\n";
       }
       
       $output .= "<dd>\n";
-      if(is_array($value)){
+      if (is_array($value)) {
         $output .= contemplate_array_variables($value, $target, $field);
       }
-      elseif(is_object($value)){
+      elseif (is_object($value)) {
         $output .= contemplate_array_variables((array)$value, $target, $field, TRUE);
       }
       else {
@@ -535,7 +538,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
  * 
  * - used only on the template editing pages
  */
-function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE){
+function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE) {
   $node = (object)$node;
 
   $node = node_build_content($node, $teaser, $page);
@@ -552,8 +555,6 @@ function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = T
   // Set the proper node part, then unset unused $node part so that a bad
   // theme can not open a security hole.
   $content = drupal_render($node->content);
-  
-  /*
   if ($teaser) {
     $node->teaser = $content;
     unset($node->body);
@@ -561,12 +562,10 @@ function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = T
   else {
     $node->body = $content;
     unset($node->teaser);
-  }*/
+  }
   
   // Allow modules to modify the fully-built node.
   node_invoke_nodeapi($node, 'alter', $teaser, $page);
-  
-  // drupal_set_message('checksum/length returned: '. strlen(print_r($node, TRUE)));
   
   return $node;
 }
@@ -582,7 +581,7 @@ function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = T
  * @return
  *   executed template code
  */
-function contemplate_eval($tmplt, $obj){
+function contemplate_eval($tmplt, $obj) {
   extract((array)$obj);
   $node = $obj;
   ob_start(); 
@@ -596,33 +595,22 @@ function contemplate_eval_enclosure($field, $node) {
   $tmplt = "<?php print ". $field ." ?>";
   $fid = contemplate_eval($tmplt, $node);
   if (is_numeric($fid)) {
-    $file = db_fetch_object(db_query('SELECT * FROM {files} WHERE fid = %d', $fid));
+    $file = db_fetch_object(db_query("SELECT * FROM {files} WHERE fid = %d", $fid));
     return $file;
   }
   return FALSE;
 }
 
 
-function contemplate_cck_get_fields($type_name){
-  if(module_exists('content')){
+function contemplate_cck_get_fields($type_name) {
+  if (module_exists('content')) {
     $return = array();
+
+    $type = content_types($type_name);
     
-    // for compatibility with both CVS and 4.7 versions of CCK
-    // remove conditionals once "content_types()" is committed to 4.7
-    
-    // start remove
-    if(function_exists('content_types')){
-      $type = content_types($type_name); //   <-- keep this part
-    }
-    else {
-      $types = _content_types();
-      $type = (array)$types[$type_name];
-    }
-    // end remove
-    
-    if($type){
+    if ($type) {
       // if this is a CCK field
-      foreach($type['fields'] as $field_name => $field){
+      foreach($type['fields'] as $field_name => $field) {
         $return[] = theme('contemplate_field', $field);      
       }
       $return = implode("\n", $return);
@@ -640,12 +628,8 @@ function contemplate_cck_get_fields($type_name){
 /**
  * Rewrite of theme_field to output default CCK output into the template.
  *
- * @param unknown_type $node
- * @param unknown_type $field
- * @param unknown_type $items
- * @param unknown_type $teaser
- * @param unknown_type $page
  * @return unknown
+ * 
  */
 function theme_contemplate_field(&$field) {
   $output = '';
@@ -655,9 +639,14 @@ function theme_contemplate_field(&$field) {
   $output .= '  <h3 class="field-label">'. $field['widget']['label'] .'</h3>'."\n";
 
   $output .= '  <div class="field-items">'."\n";
-  $output .= "    <?php foreach ((array)\$". $field['field_name'] ." as \$item) { ?>"."\n";
-  $output .= '      <div class="field-item">'. "<?php print \$item['view'] ?>" .'</div>'."\n";
-  $output .= "    <?php } ?>"."\n";
+  if ($field['multiple']) {
+    $output .= "    <?php foreach ((array)\$". $field['field_name'] ." as \$item) { ?>"."\n";
+    $output .= '      <div class="field-item">'. "<?php print \$item['view'] ?>" .'</div>'."\n";
+    $output .= "    <?php } ?>"."\n";
+  }
+  else {
+    $output .= '      <div class="field-item">'. "<?php print $". $field['field_name'] ."[0]['view'] ?>" .'</div>'."\n";
+  }
   $output .= '  </div>'."\n";
 
   $output .= '</div>'."\n";
