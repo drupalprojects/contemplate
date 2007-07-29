@@ -9,6 +9,9 @@ function contemplate_install() {
       type varchar(32) NOT NULL default '',
       teaser text NOT NULL,
       body text NOT NULL,
+      rss text NOT NULL,
+      enclosure varchar(128) NOT NULL,
+      flags int(8) unsigned NOT NULL default '7',
       KEY type (type)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
 
@@ -19,6 +22,9 @@ function contemplate_install() {
       type varchar(32) NOT NULL default '',
       teaser text NOT NULL,
       body text NOT NULL,
+      rss text NOT NULL,
+      enclosure varchar(128) NOT NULL,
+      flags int(8) unsigned NOT NULL default '7',
       PRIMARY KEY (type)
       );");
 
