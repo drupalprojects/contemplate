@@ -11,10 +11,14 @@ function contemplate_install() {
       body text NOT NULL,
       rss text NOT NULL,
       enclosure varchar(128) NOT NULL,
-      flags int(8) unsigned NOT NULL default '0',
+      flags int(8) unsigned NOT NULL default '7',
       KEY type (type)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-
+    db_query("CREATE TABLE contemplate_files (
+      site varchar(256) NOT NULL,
+      data longblob NOT NULL,
+      UNIQUE KEY site (site)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
     break;
   case 'pgsql':
@@ -28,13 +32,19 @@ function contemplate_install() {
       PRIMARY KEY (type)
       );");
 
+    db_query("CREATE TABLE contemplate_files (
+      site varchar(256) NOT NULL,
+      data longblob NOT NULL,
+      UNIQUE KEY site (site)
+      );");  // This code is untested. Please post a fix to the issue queue if incorrect
+
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
     break;
   }
    drupal_set_message(t('Database tables for ConTemplate module have been installed.'));
  }
 
-function contemplate_update_1(){
+function contemplate_update_1() {
   $ret = array();
 
   switch ($GLOBALS['db_type']) {
@@ -42,11 +52,29 @@ function contemplate_update_1(){
     case 'mysqli':
       $ret[] = update_sql('ALTER TABLE {contemplate} ADD rss text NOT NULL');
       $ret[] = update_sql('ALTER TABLE {contemplate} ADD enclosure varchar(128) NOT NULL');
-      $ret[] = update_sql("ALTER TABLE {contemplate} ADD flags int(8) unsigned NOT NULL default '7'"); 
+      $ret[] = update_sql("ALTER TABLE {contemplate} ADD flags int(8) unsigned NOT NULL default '7'");
       break;
     }
 
   return $ret;
+}
+
+function contemplate_update_2() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql('CREATE TABLE contemplate_files (
+      site varchar(256) NOT NULL,
+      data longblob NOT NULL,
+      UNIQUE KEY site (site)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;');
+      break;
+    }
+
+  return $ret;
+
 }
 
 function contemplate_uninstall() {
