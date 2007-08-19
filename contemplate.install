@@ -33,7 +33,7 @@ function contemplate_install() {
       );");
 
     db_query("CREATE TABLE contemplate_files (
-      site varchar(256) NOT NULL,
+      site varchar(255) NOT NULL,
       data longblob NOT NULL,
       UNIQUE KEY site (site)
       );");  // This code is untested. Please post a fix to the issue queue if incorrect
