@@ -15,7 +15,7 @@ function contemplate_install() {
       KEY type (type)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
     db_query("CREATE TABLE contemplate_files (
-      site varchar(256) NOT NULL,
+      site varchar(255) NOT NULL,
       `data` longblob NOT NULL,
       UNIQUE KEY site (site)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
