@@ -65,7 +65,7 @@ function contemplate_update_2() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      $ret[] = update_sql('CREATE TABLE contemplate_files (
+      $ret[] = update_sql('CREATE TABLE {contemplate_files} (
       site varchar(256) NOT NULL,
       data longblob NOT NULL,
       UNIQUE KEY site (site)
