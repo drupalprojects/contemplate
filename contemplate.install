@@ -17,7 +17,7 @@ function contemplate_install() {
     db_query("CREATE TABLE {contemplate_files} (
       site varchar(255) NOT NULL,
       `data` longblob NOT NULL,
-      UNIQUE KEY site (site)
+      UNIQUE KEY site (site(256))
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
     break;
@@ -35,7 +35,7 @@ function contemplate_install() {
     db_query("CREATE TABLE {contemplate_files} (
       site varchar(255) NOT NULL,
       data longblob NOT NULL,
-      UNIQUE KEY site (site)
+      UNIQUE KEY site (site(256))
       );");  // This code is untested. Please post a fix to the issue queue if incorrect
 
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
@@ -68,7 +68,7 @@ function contemplate_update_2() {
       $ret[] = update_sql('CREATE TABLE {contemplate_files} (
       site varchar(256) NOT NULL,
       data longblob NOT NULL,
-      UNIQUE KEY site (site)
+      UNIQUE KEY site (site(256))
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;');
       break;
     }
