@@ -72,12 +72,13 @@ function contemplate_update_2() {
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;');
       break;
     }
-    
+
   return $ret;
 
 }
 
 function contemplate_uninstall() {
   db_query('DROP TABLE {contemplate}');
+  db_query('DROP TABLE {contemplate_files}');
   drupal_set_message(t('The ConTemplate tables have been removed from the database'));
 }
