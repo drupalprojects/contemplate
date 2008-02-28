@@ -28,16 +28,16 @@ function contemplate_install() {
       body text NOT NULL,
       rss text NOT NULL,
       enclosure varchar(128) NOT NULL,
-      flags int(8) unsigned NOT NULL default '0',
+      flags int_unsigned NOT NULL default '0',
       PRIMARY KEY (type)
       );");
 
     db_query("CREATE TABLE {contemplate_files} (
       site varchar(255) NOT NULL,
-      data longblob NOT NULL,
-      UNIQUE KEY site (site(255))
+      data bytea NOT NULL
       );");  // This code is untested. Please post a fix to the issue queue if incorrect
 
+    db_query("CREATE UNIQUE INDEX {contemplate_files}_site_idx ON {contemplate_files} (site)");
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
     break;
   }
