@@ -209,6 +209,7 @@ function contemplate_edit_type_form($type = NULL) {
       '#description' => t('Leave this field blank to leave teaser unaffected.'),
       '#prefix' => '<div class="contemplate-input">',
       '#suffix' => '</div>',
+      '#attributes' => ((CONTEMPLATE_TEASER_ENABLED & $template['flags']) ? '' : array('disabled' => 'true')),
     );
   }
   else {
@@ -252,6 +253,7 @@ function contemplate_edit_type_form($type = NULL) {
       '#description' => t('Leave this field blank to leave body unaffected.'),
       '#prefix' => '<div class="contemplate-input">',
       '#suffix' => '</div>',
+      '#attributes' => ((CONTEMPLATE_BODY_ENABLED & $template['flags']) ? '' : array('disabled' => 'true')),
 
     );
   }
@@ -299,6 +301,7 @@ function contemplate_edit_type_form($type = NULL) {
       '#description' => t('Leave this field blank to leave RSS unaffected.'),
       '#prefix' => '<div class="contemplate-input">',
       '#suffix' => '</div>',
+      '#attributes' => ((CONTEMPLATE_RSS_ENABLED & $template['flags']) ? '' : array('disabled' => 'true')),
     );
   }
   else {
