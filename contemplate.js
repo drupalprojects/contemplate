@@ -32,7 +32,6 @@ Drupal.contemplate.toggle = function() {
 if (Drupal.jsEnabled) {
   $(document).ready(function(){
     $("input[@id*=enable]")
-      .click(Drupal.contemplate.toggle)
-      .click();
+      .click(Drupal.contemplate.toggle);
   });
 }
