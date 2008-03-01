@@ -187,7 +187,7 @@ function contemplate_edit_type_form($type = NULL) {
 
   $form['teaser'] = array(
     '#type' => 'fieldset',
-    '#title' => t('teaser'),
+    '#title' => t('Teaser'),
     '#collapsible' => TRUE,
     '#collapsed' => CONTEMPLATE_TEASER_ENABLED & $template['flags'] ? FALSE : TRUE,
   );
@@ -232,7 +232,7 @@ function contemplate_edit_type_form($type = NULL) {
 
   $form['body'] = array(
     '#type' => 'fieldset',
-    '#title' => t('body'),
+    '#title' => t('Body'),
     '#collapsible' => TRUE,
     '#collapsed' => CONTEMPLATE_BODY_ENABLED & $template['flags'] ? FALSE : TRUE,
   );
