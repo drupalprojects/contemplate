@@ -22,8 +22,8 @@ function contemplate_help($section) {
     case 'admin/content/templates/'. arg(3):
     case 'admin/content/types/'. arg(3) .'/template':
       return t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p>
-<p>It is also possible to create disk-based templates. Find more information about that <a href="!link">here</a>.
-<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>', array('!link' => url('admin/help/contemplate', NULL, 'disk-based'))). theme('more_help_link', url('admin/help/contemplate'));
+<p>It is also possible to create disk-based templates. '.(module_exists('help') ? 'Find more information about that <a href="!link">here</a>' : 'For help on this enable the \'help\' module, and you will find a link here.').'
+<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>', (module_exists('help') ? array('!link' => url('admin/help/contemplate', NULL, 'disk-based')) : '')). (module_exists('help') ? theme('more_help_link', url('admin/help/contemplate')) : '');
     case 'admin/help#contemplate':
       return t('<p>The Content Templates (a.k.a. contemplate) module allows modification of the teaser and body fields using administrator defined templates. These templates use PHP code and all of the node object variables are available for use in the template. An example node object is displayed and it is as simple as clicking on its properties to add them to the current template.</p>
 
