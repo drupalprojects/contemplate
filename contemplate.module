@@ -172,7 +172,7 @@ function contemplate_edit_type_form($type = NULL) {
   $template = contemplate_get_template($type);
 
   $intro = t("
-    <p>An example node has been loaded and it's properties appear below. Click on the the property names to add them to your template.</p>
+    <p>An example node has been loaded and its properties appear below. Click on the the property names to add them to your template.</p>
   ");
 
   $example_help = t('Click property to add to your template. Fields marked with <span style="color:red">**</span> are insecure and need to be wrapped with either <a href="http://api.drupal.org/api/5/function/check_plain">check_plain()</a> or <a href="http://api.drupal.org/api/5/function/check_markup">check_markup()</a>');
