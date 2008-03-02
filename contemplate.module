@@ -20,6 +20,7 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
 function contemplate_help($path, $arg) {
   switch ($path) {
     case 'admin/content/templates':
+      break;
     case 'admin/content/types/'. $arg[3] .'/template':
       return t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p>
 <p>It is also possible to create disk-based templates. '.(module_exists('help') ? 'Find more information about that <a href="!link">here</a>' : 'For help on this enable the \'help\' module, and you will find a link here.').'
@@ -151,6 +152,7 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  *
  */
 function contemplate_admin() {
+  $destination = drupal_get_destination();
   contemplate_refresh_files();
   $types = node_get_types();
   $templates = contemplate_get_templates();
@@ -158,6 +160,7 @@ function contemplate_admin() {
     $rows[] = array(
       $type->name,
       l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
+      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'.$type->type.'/delete', array(), $destination) : ''),
     );
   }
   $header = array(
@@ -167,7 +170,27 @@ function contemplate_admin() {
   $output .= theme("table", $header, $rows);
   return $output;
 }
+/**
+ * Menu Callback
+ * Confirm the deletion of the custom Content Template
+ * 
+ * @param string $type
+ */
+function contemplate_delete_type_form(&$form_state, $type = NULL){
+  //drupal_set_message('type = <pre>'.print_r($type, true).'</pre>');
+  $form['type'] = array('#type' => 'value', '#value' => $type);
 
+  return confirm_form($form,
+   t('Are you sure you want to delete the template for %type?', array('%type' => $type)),
+   isset($_GET['destination']) ? $_GET['destination'] : 'admin/content/templates',
+   t('This action cannot be undone.'),
+   t('Delete'), t('Cancel'));
+}
+function contemplate_delete_type_form_submit($form, &$form_state){
+  $types = node_get_types();
+  $sql = 'DELETE FROM {contemplate} WHERE `type`=\'%s\'';
+  $result = db_query($sql, $form['type']['#value']);
+}
 /**
  * Menu callback
  * Edit the template for a specific node-type
@@ -368,6 +391,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
 }
 
 function contemplate_edit_type($type = NULL) {
+  //drupal_set_message('type = '.$type);
   $types = node_get_types();
 
   if (!$types[$type]) { // if the argument isn't a valid node type, output admin page
@@ -379,7 +403,10 @@ function contemplate_edit_type($type = NULL) {
     $breadcrumbs[] = l(t('Templates'), 'admin/content/templates');
     drupal_set_breadcrumb($breadcrumbs);
   }
-
+  if(arg(4) == 'delete'){
+    drupal_set_title(t('Are you sure you want to delete the template for %type?', array("%type" => $types[$type]->name)));
+    return drupal_get_form('contemplate_delete_type_form', $type);
+  }
   contemplate_refresh_files();
 
   $output = drupal_get_form('contemplate_edit_type_form', $type);
