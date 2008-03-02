@@ -160,7 +160,7 @@ function contemplate_admin() {
     $rows[] = array(
       $type->name,
       l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
-      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'.$type->type.'/delete', array(), $destination) : ''),
+      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'.$type->type.'/delete', array('query'=>$destination)) : ''),
     );
   }
   $header = array(
@@ -177,7 +177,6 @@ function contemplate_admin() {
  * @param string $type
  */
 function contemplate_delete_type_form(&$form_state, $type = NULL){
-  //drupal_set_message('type = <pre>'.print_r($type, true).'</pre>');
   $form['type'] = array('#type' => 'value', '#value' => $type);
 
   return confirm_form($form,
