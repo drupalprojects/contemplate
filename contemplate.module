@@ -53,10 +53,9 @@ function contemplate_help($path, $arg) {
 /**
 * Menu callback; loads a flexifilter object
 */
-function contemplate_load($map_array, $index) {
-  drupal_set_message('$map_array =<pre>'. print_r($type, true).'</pre>');
-  drupal_set_message('$index ='.$index);
+function contemplate_node_type_load($map_array, $index) {
   $types = node_get_types();
+  $type = $index[3];
   if (!$types[$type]) { // if the argument isn't a valid node type, return false
     return false;
   }else{
@@ -76,9 +75,8 @@ function contemplate_menu() {
     'access arguments' => array('administer templates'),
     'page callback' => 'contemplate_edit_type',
     'page arguments' => array(3),
-    'type' => MENU_CUSTOM_ITEM,
   );
-  $items['admin/content/node-type/%contemplate/template'] = array(
+  $items['admin/content/node-type/%contemplate_node_type/template'] = array(
     'title' => t('Template'),
     'page callback' => 'contemplate_edit_type',
     'access callback' => 'user_access',
@@ -89,7 +87,7 @@ function contemplate_menu() {
     'load arguments' => array('%map', '%index'),
   );
   $items['admin/content/types/template'] = array(
-    'title' => t('Template'),
+    'title' => t('Templates'),
     'page callback' => 'contemplate_edit_type',
     'access callback' => 'user_access',
     'access arguments' => array('administer templates'),
