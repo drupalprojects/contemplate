@@ -53,9 +53,9 @@ function contemplate_help($path, $arg) {
 /**
 * Menu callback; loads a flexifilter object
 */
-function contemplate_node_type_load($map_array, $index) {
+function contemplate_node_type_load($index, $map_array) {
   $types = node_get_types();
-  $type = $index[3];
+  $type = $map_array[$index];
   if (!$types[$type]) { // if the argument isn't a valid node type, return false
     return false;
   }else{
