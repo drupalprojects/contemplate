@@ -82,7 +82,7 @@ function contemplate_menu() {
     'title' => t('Template'),
     'page callback' => 'contemplate_edit_type',
     'access callback' => 'user_access',
-    'access arguments' => 'administer templates',
+    'access arguments' => array('administer templates'),
     'page arguments' => array(3),
     'type' => MENU_LOCAL_TASK,
     'weight' => 7,
@@ -92,7 +92,7 @@ function contemplate_menu() {
     'title' => t('Template'),
     'page callback' => 'contemplate_edit_type',
     'access callback' => 'user_access',
-    'access arguments' => 'administer templates',
+    'access arguments' => array('administer templates'),
     'type' => MENU_LOCAL_TASK,
     'weight' => 7,
   );
