@@ -629,6 +629,19 @@ function contemplate_examples($type) {
  * @return unknown
  */
 function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE) {
+  /**
+   * CCK fields are causing problems, they are added into the origonal array as $array['field_*']=>array();
+   * and they are also added into $array['content']['field_*']=>array() this array has not only 
+   * the information for the CCK field, but also information for the whole node, even itself, 
+   * recursively, this leads to memory issues while traversing the array recursively
+   */
+  if(isset($array['content'])){
+    foreach($array['content'] as $key => $value){
+      if(strpos($key, 'field_') === 0){
+        unset($array['content'][$key]);
+      }
+    }
+  }
   global $contemplate_fids;
 
   if (is_object($array)) {
