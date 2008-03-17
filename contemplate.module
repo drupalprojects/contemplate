@@ -19,11 +19,11 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
  */
 function contemplate_help($path, $arg) {
   $short_help = t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p>
-<p>It is also possible to create disk-based templates. '.(module_exists('help') ? 'Find more information about that <a href="!link">here</a>' : 'For help on this enable the \'help\' module, and you will find a link here.').'
-<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>', (module_exists('help') ? array('!link' => url('admin/help/contemplate', array('fragment' => 'disk-based'))) : '')). (module_exists('help') ? theme('more_help_link', url('admin/help/contemplate')) : '');
+<p>It is also possible to create disk-based templates. '. (module_exists('help') ? 'Find more information about that <a href="!link">here</a>' : 'For help on this enable the \'help\' module, and you will find a link here.') .'
+<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>', (module_exists('help') ? array('!link' => url('admin/help/contemplate', array('fragment' => 'disk-based'))) : '')) . (module_exists('help') ? theme('more_help_link', url('admin/help/contemplate')) : '');
   switch ($path) {
     case 'admin/content/templates':
-      if($arg[3]){
+      if ($arg[3]) {
         return $short_help;
       }
       break;
@@ -58,7 +58,8 @@ function contemplate_node_type_load($index, $map_array) {
   $type = $map_array[$index];
   if (!$types[$type]) { // if the argument isn't a valid node type, return false
     return false;
-  }else{
+  }
+  else {
     return $type;
   }
 }
@@ -165,7 +166,7 @@ function contemplate_admin() {
     $rows[] = array(
       $type->name,
       l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
-      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'.$type->type.'/delete', array('query'=>$destination)) : ''),
+      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'. $type->type .'/delete', array('query' => $destination)) : ''),
     );
   }
   $header = array(
@@ -181,7 +182,7 @@ function contemplate_admin() {
  * 
  * @param string $type
  */
-function contemplate_delete_type_form(&$form_state, $type = NULL){
+function contemplate_delete_type_form(&$form_state, $type = NULL) {
   $form['type'] = array('#type' => 'value', '#value' => $type);
 
   return confirm_form($form,
@@ -190,7 +191,7 @@ function contemplate_delete_type_form(&$form_state, $type = NULL){
    t('This action cannot be undone.'),
    t('Delete'), t('Cancel'));
 }
-function contemplate_delete_type_form_submit($form, &$form_state){
+function contemplate_delete_type_form_submit($form, &$form_state) {
   $types = node_get_types();
   $sql = 'DELETE FROM {contemplate} WHERE `type`=\'%s\'';
   $result = db_query($sql, $form['type']['#value']);
@@ -361,15 +362,15 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
     '#value' => '<div style="clear:both"></div>',
   );
 
-  global $contemplate_fids;
+  global $_contemplate_fids;
 
-  if (is_array($contemplate_fids)) {
-    $contemplate_fids = drupal_map_assoc(array_unique($contemplate_fids));
-    $contemplate_fids = array(0 => t('&lt;none&gt; (other modules may add)')) + $contemplate_fids;
+  if (is_array($_contemplate_fids)) {
+    $_contemplate_fids = drupal_map_assoc(array_unique($contemplate_fids));
+    $_contemplate_fids = array(0 => t('&lt;none&gt; (other modules may add)')) + $_contemplate_fids;
     $form['rss']['enclosure'] = array(
       '#type' => 'radios',
       '#title' => t('RSS enclosures'),
-      '#options' => $contemplate_fids,
+      '#options' => $_contemplate_fids,
       '#default_value' => $template['enclosure'],
     );
   }
@@ -407,7 +408,7 @@ function contemplate_edit_type($type = NULL) {
     $breadcrumbs[] = l(t('Templates'), 'admin/content/templates');
     drupal_set_breadcrumb($breadcrumbs);
   }
-  if(arg(4) == 'delete'){
+  if (arg(4) == 'delete') {
     drupal_set_title(t('Are you sure you want to delete the template for %type?', array("%type" => $types[$type]->name)));
     return drupal_get_form('contemplate_delete_type_form', $type);
   }
@@ -436,13 +437,13 @@ function contemplate_get_template($type) {
       'body' => CONTEMPLATE_BODY_ENABLED,
       'rss' => CONTEMPLATE_RSS_ENABLED
     );
-    foreach($fields as $field => $enable) {
+    foreach ($fields as $field => $enable) {
       if ($file = contemplate_get_file($type, $field)) {
         $types[$type][$field] = $file->contents;
-        $types[$type][$field . '-file'] = $file;
+        $types[$type][$field .'-file'] = $file;
         $types[$type]['flags'] |= $enable; // if there is a file, the field is always enabled...
       }
-      $types[$type][$field. '-enabled'] = $types[$type]['flags'] & $enable ? TRUE : FALSE;
+      $types[$type][$field .'-enabled'] = $types[$type]['flags'] & $enable ? TRUE : FALSE;
     }
   }
   return $types[$type];
@@ -456,7 +457,7 @@ function contemplate_get_template($type) {
  */
 function contemplate_get_templates() {
   $result = db_query("SELECT * FROM {contemplate}");
-  while($r = db_fetch_object($result)) {
+  while ($r = db_fetch_object($result)) {
     $templates[$r->type]['teaser'] = $r->teaser;
     $templates[$r->type]['body'] = $r->body;
     $templates[$r->type]['rss'] = $r->rss;
@@ -578,7 +579,7 @@ function contemplate_node_views($type) {
 
     $teasernode = contemplate_node_view(node_load($nid), TRUE, FALSE);
 
-    return array('body'=>$bodynode, 'teaser'=>$teasernode);
+    return array('body' => $bodynode, 'teaser' => $teasernode);
   }
   else {
     return FALSE;
@@ -606,7 +607,7 @@ function contemplate_examples($type) {
     $routput = contemplate_array_variables((array)$views['teaser'], 'rss');
   }
   else {
-    $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array("%type"=> $type));
+    $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array("%type" => $type));
     $toutput = $boutput = $routput = $error;
   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
@@ -636,24 +637,24 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    * recursively, this leads to memory issues while traversing the array recursively
    * Drupal 6
    */
-  if(isset($array['content'])){
-    foreach($array['content'] as $key => $value){
-      if(strpos($key, 'field_') === 0){
+  if (isset($array['content'])) {
+    foreach ($array['content'] as $key => $value) {
+      if (strpos($key, 'field_') === 0) {
         unset($array['content'][$key]);
       }
     }
   }
-  global $contemplate_fids;
+  global $_contemplate_fids;
 
   if (is_object($array)) {
     $array = (array)$array;
   }
   if (is_array($array)) {
     $output .= "<dl>\n";
-    foreach($array as $field => $value) {
+    foreach ($array as $field => $value) {
       if ($parents) {
         if ($object) {
-          $field = $parents .'->'.$field;
+          $field = $parents .'->'. $field;
         }
         else {
           if (is_int($field)) {
@@ -661,7 +662,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
           }
           else {
             if ($field == 'fid') { // make a note of the fields named "fid"
-              $contemplate_fids[] = "\$node->". $parents .'[\''. $field .'\']';
+              $_contemplate_fids[] = "\$node->". $parents .'[\''. $field .'\']';
             }
             $field = $parents .'[\''. $field .'\']';
           }
@@ -792,7 +793,7 @@ function contemplate_cck_get_fields($type_name) {
 
     if ($type) {
       // if this is a CCK field
-      foreach($type['fields'] as $field_name => $field) {
+      foreach ($type['fields'] as $field_name => $field) {
         $return[] = theme('contemplate_field', $field);
       }
       $return = implode("\n", $return);
@@ -823,11 +824,11 @@ function theme_contemplate_field(&$field) {
   $output .= '  <div class="field-items">'."\n";
   if ($field['multiple']) {
     $output .= "    <?php foreach ((array)\$node->". $field['field_name'] ." as \$item) { ?>"."\n";
-    $output .= '      <div class="field-item">'. "<?php print \$item['view'] ?>" .'</div>'."\n";
+    $output .= '      <div class="field-item">'."<?php print \$item['view'] ?>".'</div>'."\n";
     $output .= "    <?php } ?>"."\n";
   }
   else {
-    $output .= '      <div class="field-item">'. "<?php print \$node->". $field['field_name'] ."[0]['view'] ?>" .'</div>'."\n";
+    $output .= '      <div class="field-item">'."<?php print \$node->". $field['field_name'] ."[0]['view'] ?>" .'</div>'."\n";
   }
   $output .= '  </div>'."\n";
 
