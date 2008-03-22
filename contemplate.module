@@ -658,7 +658,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
           $insert = "'<?php print \$node->". addslashes($field) ." ?>'";
         }
 
-        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return false;\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
+        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return false;\" title=\"". t('insert this variable into'). " $target\">\$node->$field</a>{$security}{$type}</dt>\n";
       }
       else {
         $output .= "<dt>\$node->$field$type</dt>\n";
