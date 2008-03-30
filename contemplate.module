@@ -324,7 +324,7 @@ function contemplate_edit_type_form($type = NULL) {
       '#title' => t('RSS Template'),
       '#default_value' => $template['rss'] ? $template['rss'] : $default_body,
       '#rows' => 15,
-      '#description' => t('Leave this field blank to leave RSS unaffected.'),
+      '#description' => t('Leave this field blank to leave RSS unaffected. To add <a href="!link">XML elements</a> create an array $xml_elements.', array('!link' => 'http://api.drupal.org/api/function/format_xml_elements/5')),
       '#prefix' => '<div class="contemplate-input">',
       '#suffix' => '</div>',
       '#attributes' => ((CONTEMPLATE_RSS_ENABLED & $template['flags']) ? '' : array('disabled' => 'true')),
