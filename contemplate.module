@@ -9,9 +9,6 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
 /**
  * @file
  * Create templates to customize teaser and body content.
- *
- * @todo
- * - allow deletion of templates
  */
 
 /**
@@ -110,14 +107,16 @@ function contemplate_perm() {
  * Implementation of hook_nodeapi().
  */
 function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  // added $xml_elements, this will add the ability to add other
+  // xml_elements to rss feeds other than just the file enclosure
+  // in PHP 4 default variables may not be passed by reference so for PHP 4 
+  // compatability we need to make sure this variable exists and is passed 
+  // in for each call to contemplate_eval()
+  $xml_elements = array(); 
   switch ($op) {
-  
     case 'rss item':
       if ($template = contemplate_get_template($node->type)) {
-        if (CONTEMPLATE_RSS_ENABLED & $template['flags'] && trim($template['rss'])) { // only if there's content in teaser field
-          // added $rss_elements, this will add the ability to add other 
-          // xml_elements to rss feeds other than just the file enclosure
-          $xml_elements = array();
+        if (CONTEMPLATE_RSS_ENABLED & $template['flags'] && trim($template['rss'])) { // only if there's content in teaser field 
           $rss = contemplate_eval($template['rss'], $node, $xml_elements);
           if (isset($xml_elements)) {
             $return = $xml_elements;
@@ -126,7 +125,7 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           $node->teaser = $rss;
           $node->body = $rss;
           if (trim($template['enclosure'])) {
-            if ($file = contemplate_eval_enclosure($template['enclosure'], $node)) {
+            if ($file = contemplate_eval_enclosure($template['enclosure'], $node, $xml_elements)) {
               $return[] = array(
                 'key' => 'enclosure',
                 'attributes' => array(
@@ -146,11 +145,11 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       if ($template = contemplate_get_template($node->type)) {
         if ($teaser) {
           if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
-            $node->teaser = contemplate_eval($template['teaser'], $node);
+            $node->teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
           }
         }
         elseif (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-          $node->body = contemplate_eval($template['body'], $node);
+          $node->body = contemplate_eval($template['body'], $node, $xml_elements);
         }
       }
       break;
@@ -781,7 +780,8 @@ function contemplate_eval($tmplt, $obj, &$xml_elements = array()) {
  */
 function contemplate_eval_enclosure($field, $node) {
   $tmplt = "<?php print ". $field ." ?>";
-  $fid = contemplate_eval($tmplt, $node);
+  $xml_elements = array();
+  $fid = contemplate_eval($tmplt, $node, $xml_elements);
   if (is_numeric($fid)) {
     $file = db_fetch_object(db_query("SELECT * FROM {files} WHERE fid = %d", $fid));
     return $file;
