@@ -765,7 +765,7 @@ function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = T
  *   string
  *   executed template code
  */
-function contemplate_eval($tmplt, $obj, &$xml_elements = array()) {
+function contemplate_eval($tmplt, $obj, $xml_elements = array()) {
   extract((array)$obj);
   $node = $obj;
   ob_start();
