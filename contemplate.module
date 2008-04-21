@@ -197,7 +197,7 @@ function contemplate_delete_type_form(&$form_state, $type = NULL) {
 }
 function contemplate_delete_type_form_submit($form, &$form_state) {
   $types = node_get_types();
-  $sql = 'DELETE FROM {contemplate} WHERE `type`=\'%s\'';
+  $sql = 'DELETE FROM {contemplate} WHERE type=\'%s\'';
   $result = db_query($sql, $form['type']['#value']);
 }
 /**
@@ -496,7 +496,7 @@ function contemplate_save($edit) {
 }
 
 function contemplate_delete($type) {
-  return db_query('DELETE FROM {contemplate} WHERE type = "%s"', $type);
+  return db_query('DELETE FROM {contemplate} WHERE type=\'%s\'', $type);
 }
 
 /**
