@@ -641,13 +641,17 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    * recursively, this leads to memory issues while traversing the array recursively
    * Drupal 6
    */
-  if (isset($array['content'])) {
+  /*
+  drupal_set_message('$array = <pre>'. print_r($array, true) .'</pre>');
+  return; /**/
+  
+  if (isset($array['content']) && ($parents == FALSE) && ($object == FALSE)) {
     foreach ($array['content'] as $key => $value) {
-      if (strpos($key, 'field_') === 0) {
-        unset($array['content'][$key]);
+      if ((strpos($key, 'field_') === 0) && (isset($array['content'][$key]['#node']))) {
+        unset($array['content'][$key]['#node']);
       }
     }
-  }
+  }/**/
   global $_contemplate_fids;
 
   if (is_object($array)) {
