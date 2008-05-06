@@ -644,11 +644,11 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    */
   if (isset($array['content']) && ($parents == FALSE) && ($object == FALSE)) {
     foreach ($array['content'] as $key => $value) {
-      if ((strpos($key, 'field_') === 0) && (isset($array['content'][$key]['#node']))) {
-        unset($array['content'][$key]['#node']);
+      if (strpos($key, 'field_') === 0) {
+        unset($array['content'][$key]);      
       }
     }
-  }/**/
+  }
   global $_contemplate_fids;
 
   if (is_object($array)) {
