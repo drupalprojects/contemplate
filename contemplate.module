@@ -92,7 +92,27 @@ function contemplate_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 7,
   );
+  $items['admin/settings/contemplate'] = array(
+    'title' => 'Content Template Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('contemplate_system_settings'),
+    'access arguments' => array('administer templates'),
+  );
   return $items;
+}
+function contemplate_system_settings() {
+  $form = array();
+  $form['contemplate_remove_node_content'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Remove $node->content from variable list.',
+    '#description' => 'When this is enabled you will not see all avaible variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.',
+  );
+  if (variable_get('contemplate_remove_node_content', true)) {
+    $form['contemplate_remove_node_content']['#attributes'] = array(
+      'checked' => 'true',
+    );
+  }
+  return system_settings_form($form);
 }
 /**
  * Implementation of hook_perm()
@@ -643,9 +663,17 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    * Drupal 6
    */
   if (isset($array['content']) && ($parents == FALSE) && ($object == FALSE)) {
-    foreach ($array['content'] as $key => $value) {
-      if (strpos($key, 'field_') === 0) {
-        unset($array['content'][$key]);      
+    // be default we will remove the content array, the user can choose to have this not done
+    if (variable_get('contemplate_remove_node_content', true)) {
+      unset($array['content']);
+    }
+    else {
+      // if the user doesn't want the whole content array removed, we will just remove 
+      // the extra 'field_*' arrays
+      foreach ($array['content'] as $key => $value) {
+        if (strpos($key, 'field_') === 0) {
+          unset($array['content'][$key]);      
+        }
       }
     }
   }
