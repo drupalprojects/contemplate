@@ -112,6 +112,13 @@ function contemplate_system_settings() {
       'checked' => 'true',
     );
   }
+  $form['contemplate_max_recursion_depth'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Max recursion depth',
+    '#description' => 'How far into the node object should contemplate look? Having this set too high could cause PHP memory errors. If the above checkbox "Remove $node->content from variable list" is checked this won\'t have much of an affect.',
+    '#default_value' => variable_get('contemplate_max_recursion_depth', 10),
+    '#size' => 5,
+  );
   return system_settings_form($form);
 }
 /**
@@ -665,7 +672,11 @@ function contemplate_examples($type) {
  *   used by recursion
  * @return unknown
  */
-function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE) {
+function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0) {
+  if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
+    drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
+    return '';
+  }
   /**
    * CCK fields are causing problems, they are added into the original array as $array['field_*']=>array();
    * and they are also added into $array['content']['field_*']=>array() this array has not only 
@@ -737,10 +748,10 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $output .= contemplate_array_variables($value, $target, $field);
+        $output .= contemplate_array_variables($value, $target, $field, $depth + 1);
       }
       elseif (is_object($value)) {
-        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE);
+        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth + 1);
       }
       else {
         $value = is_bool($value) ? ($value ? 'TRUE' : 'FALSE') : $value;
