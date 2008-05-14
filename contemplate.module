@@ -636,7 +636,8 @@ function contemplate_node_views($type) {
  * @param $type
  *   node type
  * @return
- *   an array containing the 'body' and 'teaser' versions of the
+ *   an array containing the 'rss', 'body' and 'teaser' 
+ *   versions of the node
  */
 function contemplate_examples($type) {
   $path = drupal_get_path('module', 'contemplate');
