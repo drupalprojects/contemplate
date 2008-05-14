@@ -107,7 +107,7 @@ function contemplate_system_settings() {
     '#title' => 'Remove $node->content from variable list.',
     '#description' => 'When this is enabled you will not see all avaible variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.',
   );
-  if (variable_get('contemplate_remove_node_content', true)) {
+  if (variable_get('contemplate_remove_node_content', false)) {
     $form['contemplate_remove_node_content']['#attributes'] = array(
       'checked' => 'true',
     );
@@ -688,7 +688,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    */
   if (isset($array['content']) && ($parents == FALSE) && ($object == FALSE)) {
     // be default we will remove the content array, the user can choose to have this not done
-    if (variable_get('contemplate_remove_node_content', true)) {
+    if (variable_get('contemplate_remove_node_content', false)) {
       unset($array['content']);
     }
     else {
