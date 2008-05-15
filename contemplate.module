@@ -644,15 +644,18 @@ function contemplate_examples($type) {
   drupal_add_js($path .'/contemplate.js');
   drupal_add_js($path .'/divresizer.js');
   drupal_add_css($path .'/contemplate.css');
-
+  $recursion_limit_hit = 0;
   if ($views = contemplate_node_views($type)) {
-    $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield');
-    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaserfield');
-    $routput = contemplate_array_variables((array)$views['teaser'], 'rss');
+    $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaserfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $routput = contemplate_array_variables((array)$views['teaser'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
   }
   else {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array("%type" => $type));
     $toutput = $boutput = $routput = $error;
+  }
+  if ($recursion_limit_hit) {
+    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit)), 'error');
   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
@@ -673,9 +676,10 @@ function contemplate_examples($type) {
  *   used by recursion
  * @return unknown
  */
-function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0) {
+function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0, &$recursion_limit_hit) {
   if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
-    drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
+    #drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
+    $recursion_limit_hit++;
     return '';
   }
   /**
@@ -690,15 +694,6 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
     // be default we will remove the content array, the user can choose to have this not done
     if (variable_get('contemplate_remove_node_content', false)) {
       unset($array['content']);
-    }
-    else {
-      // if the user doesn't want the whole content array removed, we will just remove 
-      // the extra 'field_*' arrays
-      foreach ($array['content'] as $key => $value) {
-        if (strpos($key, 'field_') === 0) {
-          unset($array['content'][$key]);      
-        }
-      }
     }
   }
   global $_contemplate_fids;
@@ -749,10 +744,10 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $output .= contemplate_array_variables($value, $target, $field, $depth + 1);
+        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
       }
       elseif (is_object($value)) {
-        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth + 1);
+        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth++, $recursion_limit_hit);
       }
       else {
         $value = is_bool($value) ? ($value ? 'TRUE' : 'FALSE') : $value;
