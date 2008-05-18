@@ -57,6 +57,13 @@ function contemplate_menu($may_cache) {
       'access' => user_access('administer templates'),
       'callback' => 'contemplate_edit_type'
     );
+    $items[] = array(
+      'path' => 'admin/settings/contemplate',
+      'title' => t('Content Template Settings'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('contemplate_system_settings'),
+      'access' => user_access('administer templates'),
+    );
   }
   else {
 
@@ -570,7 +577,7 @@ function contemplate_node_views($type) {
     $bodynode = contemplate_node_view(node_load($nid), FALSE, TRUE);
 
     $teasernode = contemplate_node_view(node_load($nid), TRUE, FALSE);
-
+  
     return array('body' => $bodynode, 'teaser' => $teasernode);
   }
   else {
@@ -592,16 +599,19 @@ function contemplate_examples($type) {
   drupal_add_js($path .'/contemplate.js');
   drupal_add_js($path .'/divresizer.js');
   drupal_add_css($path .'/contemplate.css');
-
+  $recursion_limit_hit = 0;
   if ($views = contemplate_node_views($type)) {
-    $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield');
-    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaserfield');
-    $routput = contemplate_array_variables((array)$views['teaser'], 'rss');
+    $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $toutput = contemplate_array_variables((array)$views['teaser'], 'teaserfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $routput = contemplate_array_variables((array)$views['teaser'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
   }
   else {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array("%type" => $type));
     $toutput = $boutput = $routput = $error;
   }
+   if ($recursion_limit_hit) {
+     drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit)), 'error');
+   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
 
@@ -621,9 +631,13 @@ function contemplate_examples($type) {
  *   used by recursion
  * @return unknown
  */
-function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE) {
+function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0, &$recursion_limit_hit) {
   global $contemplate_fids;
-
+  if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
+    #drupal_set_message(t('Contemplate exceeded max recursion depth. There are more variables available that have not been listed.'), 'error');
+    $recursion_limit_hit++;
+    return '';
+  }
   if (is_object($array)) {
     $array = (array)$array;
   }
@@ -670,10 +684,10 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $output .= contemplate_array_variables($value, $target, $field);
+        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
       }
       elseif (is_object($value)) {
-        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE);
+        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth++, $recursion_limit_hit);
       }
       else {
         $value = is_bool($value) ? ($value ? 'TRUE' : 'FALSE') : $value;
@@ -814,4 +828,16 @@ function theme_contemplate_field(&$field) {
   $output .= '</div>'."\n";
 
   return $output;
+}
+
+function contemplate_system_settings() {
+  $form = array();
+  $form['contemplate_max_recursion_depth'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Max recursion depth',
+    '#description' => 'How far into the node object should contemplate look? Having this set too high could cause PHP memory errors.',
+    '#default_value' => variable_get('contemplate_max_recursion_depth', 10),
+    '#size' => 5,
+  );
+  return system_settings_form($form);
 }
