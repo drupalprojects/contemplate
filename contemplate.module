@@ -404,7 +404,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   global $_contemplate_fids;
 
   if (is_array($_contemplate_fids)) {
-    $_contemplate_fids = drupal_map_assoc(array_unique($contemplate_fids));
+    $_contemplate_fids = drupal_map_assoc(array_unique($_contemplate_fids));
     $_contemplate_fids = array(0 => t('&lt;none&gt; (other modules may add)')) + $_contemplate_fids;
     $form['rss']['enclosure'] = array(
       '#type' => 'radios',
