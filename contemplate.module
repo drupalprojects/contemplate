@@ -342,11 +342,11 @@ function contemplate_get_template($type){
   
   if(!isset($types[$type])){
     $types[$type] = db_fetch_object(db_query('SELECT * FROM {contemplate} WHERE type = "%s"', $type));
-		if (empty($types[$type])) {
+    // set the flag incase there is no template so we don't get an undefined index
+    if (empty($types[$type])) {
       $types[$type] = array('flags' => 0);
-		}
-  }
-  
+    }
+  }  
   return $types[$type];
 }
 
@@ -473,7 +473,7 @@ function contemplate_examples($type){
  *   used by recursion
  * @param $object
  *   used by recursion
- * @return unknown
+ * @return string - html dictionary of node variables
  */
 function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE){
   global $contemplate_fids;
