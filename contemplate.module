@@ -657,7 +657,7 @@ function contemplate_examples($type) {
     $toutput = $boutput = $routput = $error;
   }
   if ($recursion_limit_hit) {
-    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto $link. This error will not effect the operation of Content Template, but it may not show you all available variables on this page. This error will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit, '$link' => l('http://drupal.org/node/230885', 'http://drupal.org/node/230885'))), 'error');
+    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto '. l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') .'. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit)), 'warning');
   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
@@ -746,7 +746,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $result = contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
+        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
       }
       elseif (is_object($value)) {
         $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth++, $recursion_limit_hit);
