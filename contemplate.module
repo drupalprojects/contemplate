@@ -470,7 +470,9 @@ function contemplate_get_template($type) {
 
     // first check to see what's stored in the contemplate table
     $types[$type] = db_fetch_array(db_query("SELECT * FROM {contemplate} WHERE type = '%s'", $type));
-
+    if (empty($types[$type])) {
+      $types[$type] = array('flags' => 0);
+    }
     // now check to see if there are files
     $fields = array(
       'teaser' => CONTEMPLATE_TEASER_ENABLED,
