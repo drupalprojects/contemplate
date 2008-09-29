@@ -342,6 +342,9 @@ function contemplate_get_template($type){
   
   if(!isset($types[$type])){
     $types[$type] = db_fetch_object(db_query('SELECT * FROM {contemplate} WHERE type = "%s"', $type));
+		if (empty($types[$type])) {
+      $types[$type] = array('flags' => 0);
+		}
   }
   
   return $types[$type];
@@ -350,7 +353,7 @@ function contemplate_get_template($type){
 /**
  * Get all of the current templates
  *
- * @return unknown
+ * @return array of all templates indexed by content typw
  */
 function contemplate_get_templates(){
   $result = db_query('SELECT * FROM {contemplate}');
