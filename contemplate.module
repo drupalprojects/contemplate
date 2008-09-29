@@ -676,7 +676,7 @@ function contemplate_examples($type) {
  *   used by recursion
  * @param $object
  *   used by recursion
- * @return unknown
+ * @return string - html dictionary list of $node elements
  */
 function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0, &$recursion_limit_hit) {
   if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
@@ -746,7 +746,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
+        $result = contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
       }
       elseif (is_object($value)) {
         $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth++, $recursion_limit_hit);
@@ -759,7 +759,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
     }
     $output .= "</dl>\n";
   }
-  return $output;
+    return $output;
 }
 
 /**
