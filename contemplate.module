@@ -702,6 +702,9 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
       unset($array['content']);
     }
   }
+  if (isset($array['#node'])) {
+    unset($array['#node']);
+  }
   global $_contemplate_fids;
 
   if (is_object($array)) {
