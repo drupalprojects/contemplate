@@ -636,6 +636,13 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
     $recursion_limit_hit++;
     return '';
   }
+  //
+  //  if $array['#node'] exists we need to remove it to prevent recursion and PHP Fatal errors on Memory Limit
+  //
+  if (isset($array['#node'])) {
+    unset($array['#node']);
+  }
+  
   if (is_object($array)) {
     $array = (array)$array;
   }
