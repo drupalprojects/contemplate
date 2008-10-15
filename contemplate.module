@@ -384,7 +384,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   }
   else {
     $form['rss']['rss'] = array(
-      '#value' => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['body-file']->filename)),
+      '#value' => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['rss-file']->filename)),
     );
   }
 
