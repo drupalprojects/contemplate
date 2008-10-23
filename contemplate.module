@@ -121,6 +121,16 @@ function contemplate_system_settings() {
     '#default_value' => variable_get('contemplate_max_recursion_depth', 10),
     '#size' => 5,
   );
+  $form['contemplate_before_search_index'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Process template before indexing for search',
+    '#description' => 'Do you want to process the template before the nodes are indexed for search?',
+   );
+   if (variable_get('contemplate_before_search_index', FALSE)) {
+    $form['contemplate_before_search_index']['#attributes'] = array( 
+      'checked' => 'true',
+    );
+  }
   return system_settings_form($form);
 }
 /**
@@ -182,7 +192,12 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         }
       }
       break;
-
+    case 'update index':
+      if (variable_get('contemplate_before_search_index', FALSE)) {
+        contemplate_nodeapi($node, 'alter');
+        return $node->body;
+      }
+      break;
   }
 }
 
