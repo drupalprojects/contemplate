@@ -16,8 +16,10 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
  */
 function contemplate_help($path, $arg) {
   $short_help = t('<p>Enable the textareas by enabling the checkbox above each. Expand the variables section to display. Then click on content attributes to insert the appropriate PHP <code>print</code> statements at your cursor position in the textarea.</p>
-<p>It is also possible to create disk-based templates. '. (module_exists('help') ? 'Find more information about that <a href="!link">here</a>' : 'For help on this enable the \'help\' module, and you will find a link here.') .'
-<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>', (module_exists('help') ? array('!link' => url('admin/help/contemplate', array('fragment' => 'disk-based'))) : '')) . (module_exists('help') ? theme('more_help_link', url('admin/help/contemplate')) : '');
+<p>It is also possible to create disk-based templates.').
+  (module_exists('help') ? t('Find more information about that <a href="!link">here</a>', array('!link' => url('admin/help/contemplate', array('fragment' => 'disk-based')))) : t('For help on this enable the \'help\' module, and you will find a link here.')).
+  t('<p>Please note that by creating a template for this content type, you are taking full control of its output and you will need to manually add all of the fields that you would like to see in the output. Click <em>reset</em> to remove template control for this content type.</p>') . (module_exists('help') ? theme('more_help_link', url('admin/help/contemplate')) : '');
+  
   switch ($path) {
     case 'admin/content/templates':
       if ($arg[3]) {
@@ -105,9 +107,9 @@ function contemplate_system_settings() {
   $form['contemplate_remove_node_content'] = array(
     '#type' => 'checkbox',
     '#title' => 'Remove $node->content from variable list.',
-    '#description' => 'When this is enabled you will not see all avaible variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.',
+    '#description' => 'When this is enabled you will not see all available variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.',
   );
-  if (variable_get('contemplate_remove_node_content', FALSE)) {
+  if (variable_get('contemplate_remove_node_content', false)) {
     $form['contemplate_remove_node_content']['#attributes'] = array(
       'checked' => 'true',
     );
@@ -119,17 +121,6 @@ function contemplate_system_settings() {
     '#default_value' => variable_get('contemplate_max_recursion_depth', 10),
     '#size' => 5,
   );
-  $form['contemplate_before_search_index'] = array(
-    '#type' => 'checkbox',
-    '#title' => 'Process template before indexing for search',
-    '#description' => 'Do you want to process the template before the nodes are indexed for search?',
-  );
-  if (variable_get('contemplate_before_search_index', FALSE)) {
-    $form['contemplate_before_search_index']['#attributes'] = array(
-      'checked' => 'true',
-    );
-  }
-  
   return system_settings_form($form);
 }
 /**
@@ -191,12 +182,7 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         }
       }
       break;
-    case 'update index':
-      if (variable_get('contemplate_before_search_index', FALSE)) {
-        contemplate_nodeapi($node, 'alter');
-         return $node->body;
-      }
-      break;
+
   }
 }
 
@@ -210,12 +196,14 @@ function contemplate_admin() {
   contemplate_refresh_files();
   $types = node_get_types();
   $templates = contemplate_get_templates();
+  $enabled = t('Enabled');
+  $disabled = t('Disabled');
   foreach ($types as $type) {
     $rows[] = array(
       $type->name,
-      $templates[$type->type]['teaser'] ? ($templates[$type->type]['teaser-enabled'] ? 'Enabled' : 'Disabled') : '',
-      $templates[$type->type]['body'] ? ($templates[$type->type]['body-enabled'] ? 'Enabled' : 'Disabled') : '',
-      $templates[$type->type]['rss'] ? ($templates[$type->type]['rss-enabled'] ? 'Enabled' : 'Disabled') : '', 
+      $templates[$type->type]['teaser'] ? ($templates[$type->type]['teaser-enabled'] ? $enabled : $disabled) : '',
+      $templates[$type->type]['body'] ? ($templates[$type->type]['body-enabled'] ? $enabled : $disabled) : '',
+      $templates[$type->type]['rss'] ? ($templates[$type->type]['rss-enabled'] ? $enabled : $disabled) : '', 
       l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
       ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'. $type->type .'/delete', array('query' => $destination)) : ''),
     );
@@ -396,7 +384,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   }
   else {
     $form['rss']['rss'] = array(
-      '#value' => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['body-file']->filename)),
+      '#value' => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['rss-file']->filename)),
     );
   }
 
@@ -486,7 +474,9 @@ function contemplate_get_template($type) {
 
     // first check to see what's stored in the contemplate table
     $types[$type] = db_fetch_array(db_query("SELECT * FROM {contemplate} WHERE type = '%s'", $type));
-
+    if (empty($types[$type])) {
+      $types[$type] = array('flags' => 0);
+    }
     // now check to see if there are files
     $fields = array(
       'teaser' => CONTEMPLATE_TEASER_ENABLED,
@@ -671,7 +661,7 @@ function contemplate_examples($type) {
     $toutput = $boutput = $routput = $error;
   }
   if ($recursion_limit_hit) {
-    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto $link. This error will not effect the operation of Content Template, but it may not show you all available variables on this page. This error will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit, '$link' => l('http://drupal.org/node/230885', 'http://drupal.org/node/230885'))), 'error');
+    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto '. l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') .'. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit)), 'warning');
   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
@@ -690,7 +680,7 @@ function contemplate_examples($type) {
  *   used by recursion
  * @param $object
  *   used by recursion
- * @return unknown
+ * @return string - html dictionary list of $node elements
  */
 function contemplate_array_variables($array, $target, $parents = FALSE, $object = FALSE, $depth = 0, &$recursion_limit_hit) {
   if ($depth >= variable_get('contemplate_max_recursion_depth', 10)) {
@@ -711,6 +701,12 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
     if (variable_get('contemplate_remove_node_content', false)) {
       unset($array['content']);
     }
+  }
+  //
+  //  if $array['#node'] exists we need to remove it to prevent recursion and PHP Fatal errors on Memory Limit
+  //
+  if (isset($array['#node'])) {
+    unset($array['#node']);
   }
   global $_contemplate_fids;
 
@@ -773,7 +769,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
     }
     $output .= "</dl>\n";
   }
-  return $output;
+    return $output;
 }
 
 /**
