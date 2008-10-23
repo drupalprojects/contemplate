@@ -193,11 +193,7 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       break;
     case 'update index':
       if (variable_get('contemplate_before_search_index', FALSE)) {
-        watchdog('contemplate', '$node = <pre>'. print_r($node, true) .'</pre>', array(), WATCHDOG_DEBUG);
-        $old_node = $node;
         contemplate_nodeapi($node, 'alter');
-        //$node->body = $old_node->body .'  '. $node->body;
-        watchdog('contemplate', '$node = <pre>'. print_r($node, true) .'</pre>', array(), WATCHDOG_DEBUG);
          return $node->body;
       }
       break;
