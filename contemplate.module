@@ -676,7 +676,11 @@ function contemplate_examples($type) {
     $toutput = $boutput = $routput = $error;
   }
   if ($recursion_limit_hit) {
-    drupal_set_message(t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto '. l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') .'. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit)), 'warning');
+    $message = t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto '. l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') .'. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit));
+    if(variable_get('error_level', 1)) {
+      drupal_set_message($message, 'warning');
+    }
+    watchdog('contemplate', $message, array(), WATCHDOG_ALERT);
   }
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
@@ -712,7 +716,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
    * Drupal 6
    */
   if (isset($array['content']) && ($parents == FALSE) && ($object == FALSE)) {
-    // be default we will remove the content array, the user can choose to have this not done
+    // by default we will remove the content array, the user can choose to have this not done
     if (variable_get('contemplate_remove_node_content', false)) {
       unset($array['content']);
     }
@@ -721,7 +725,8 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
   //  if $array['#node'] exists we need to remove it to prevent recursion and PHP Fatal errors on Memory Limit
   //
   if (isset($array['#node'])) {
-    unset($array['#node']);
+    #unset($array['#node']);
+    $array['#node'] = "\n ** RECURSION **";
   }
   global $_contemplate_fids;
 
