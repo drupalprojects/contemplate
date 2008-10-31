@@ -616,7 +616,7 @@ function contemplate_get_file($node_type, $field) {
     $file = $files['node.tpl'];
   }
 
-  if ($file) {
+  if (isset($file) && $file) {
     $file->contents = file_get_contents($file->filename);
     $return = $file;
   }
