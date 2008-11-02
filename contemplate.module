@@ -216,11 +216,11 @@ function contemplate_admin() {
   foreach ($types as $type) {
     $rows[] = array(
       $type->name,
-      $templates[$type->type]['teaser'] ? ($templates[$type->type]['teaser-enabled'] ? $enabled : $disabled) : '',
-      $templates[$type->type]['body'] ? ($templates[$type->type]['body-enabled'] ? $enabled : $disabled) : '',
-      $templates[$type->type]['rss'] ? ($templates[$type->type]['rss-enabled'] ? $enabled : $disabled) : '', 
-      l($templates[$type->type] ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
-      ($templates[$type->type] ? l(t('delete template'), 'admin/content/templates/'. $type->type .'/delete', array('query' => $destination)) : ''),
+      isset($templates[$type->type]['teaser']) ? ($templates[$type->type]['teaser-enabled'] ? $enabled : $disabled) : '',
+      isset($templates[$type->type]['body']) ? ($templates[$type->type]['body-enabled'] ? $enabled : $disabled) : '',
+      isset($templates[$type->type]['rss']) ? ($templates[$type->type]['rss-enabled'] ? $enabled : $disabled) : '', 
+      l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/templates/'. $type->type),
+      (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/templates/'. $type->type .'/delete', array('query' => $destination)) : ''),
     );
   }
   $header = array(
@@ -231,8 +231,7 @@ function contemplate_admin() {
     '',
     '',
   );
-  $output .= theme("table", $header, $rows);
-  return $output;
+  return theme("table", $header, $rows);
 }
 /**
  * Menu Callback
@@ -457,7 +456,7 @@ function contemplate_edit_type($type = NULL) {
   //drupal_set_message('type = '.$type);
   $types = node_get_types();
 
-  if (!$types[$type]) { // if the argument isn't a valid node type, output admin page
+  if (empty($types[$type])) { // if the argument isn't a valid node type, output admin page
     return contemplate_admin();
   }
   drupal_set_title(t('Template for %type', array("%type" => $types[$type]->name)));
