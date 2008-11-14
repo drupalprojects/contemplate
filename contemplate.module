@@ -775,10 +775,10 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $output .= "<dd>\n";
       if (is_array($value)) {
-        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth++, $recursion_limit_hit);
+        $output .= contemplate_array_variables($value, $target, $field, FALSE, $depth + 1, $recursion_limit_hit);
       }
       elseif (is_object($value)) {
-        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth++, $recursion_limit_hit);
+        $output .= contemplate_array_variables((array)$value, $target, $field, TRUE, $depth + 1, $recursion_limit_hit);
       }
       else {
         $value = is_bool($value) ? ($value ? 'TRUE' : 'FALSE') : $value;
