@@ -1,6 +1,11 @@
 <?php
 // $Id$
 
+/**
+ * @file
+ * Content template module install/schema hooks.
+ */
+
 function contemplate_install() {
   switch ($GLOBALS['db_type']) {
   case 'mysql':
@@ -41,8 +46,8 @@ function contemplate_install() {
     db_query("UPDATE {system} SET weight = 10 WHERE name = 'contemplate'");
     break;
   }
-   drupal_set_message(t('Database tables for ConTemplate module have been installed.'));
- }
+  drupal_set_message(t('Database tables for ConTemplate module have been installed.'));
+}
 
 function contemplate_update_1() {
   $ret = array();
