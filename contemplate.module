@@ -48,6 +48,8 @@ function contemplate_node_type_load($index, $map_array) {
   }
   else {
     return $type;
+  }
+}
 
 /**
  * Implementation of hook_menu().
