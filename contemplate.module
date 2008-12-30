@@ -37,9 +37,9 @@ function contemplate_help($path, $arg) {
   }
 }
 
--/**
--* Menu callback; loads a flexifilter object
--*/
+/**
+ * Menu callback; loads a flexifilter object
+ */
 function contemplate_node_type_load($index, $map_array) {
   $types = node_get_types();
   $type = $map_array[$index];
