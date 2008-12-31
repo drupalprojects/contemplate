@@ -60,10 +60,16 @@ function contemplate_menu() {
     'title' => 'Content Templates',
     'description' => 'Create templates to customize output of teaser and body content.',
     'page callback' => 'contemplate_edit_type',
-    'access callback' => 'user_access',
     'access arguments' => array('administer templates'),
     'type' => MENU_LOCAL_TASK,
     'weight' => 7,
+  );
+  $items['admin/content/templates'] = array (
+    'title' => 'Content Templates',
+    'description' => 'Create templates to customize output of teaser and body content.',
+    'page callback' => 'drupal_goto',
+    'page arguments' => array('admin/content/types/templates'),
+    'access arguments' => array('administer templates'),
   );
   $node_types = node_get_types();
   foreach ($node_types as $type) {
