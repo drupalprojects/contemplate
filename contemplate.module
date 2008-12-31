@@ -523,10 +523,10 @@ function contemplate_edit_type_form_submit($form, &$form_state) {
 
 function contemplate_save($edit) {
   $type = $edit['values']['type'];
-  $teaserfield = !empty($edit['values']['teaserfield']) ? $edit['#post']['teaserfield'] : '';
-  $bodyfield = !empty($edit['values']['bodyfield']) ? $edit['#post']['bodyfield'] : '';
-  $rssfield = !empty($edit['values']['rssfield']) ? $edit['#post']['rssfield'] : '';
-  $enclosure = !empty($edit['values']['enclosure']) ? $edit['#post']['enclosure'] : '';
+  $teaserfield = !empty($edit['values']['teaserfield']) ? $edit['values']['teaserfield'] : '';
+  $bodyfield = !empty($edit['values']['bodyfield']) ? $edit['values']['bodyfield'] : '';
+  $rssfield = !empty($edit['values']['rssfield']) ? $edit['values']['rssfield'] : '';
+  $enclosure = !empty($edit['values']['enclosure']) ? $edit['values']['enclosure'] : '';
   $flags |= !empty($edit['values']['teaser-enable']) ? CONTEMPLATE_TEASER_ENABLED : 0;
   $flags |= !empty($edit['values']['body-enable']) ? CONTEMPLATE_BODY_ENABLED : 0;
   $flags |= !empty($edit['values']['rss-enable']) ? CONTEMPLATE_RSS_ENABLED : 0;
