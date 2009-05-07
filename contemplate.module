@@ -426,15 +426,15 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
     '#value' => $type,
   );
 
-  $form['reset'] = array(
-    '#type' => 'submit',
-    '#value' => t('Delete'),
-    '#attributes' => array('onclick' => 'return(confirm("'. t("Are you sure you want to reset this form?\\nAny customizations will be lost.") .'"));'),
-  );
 
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
+  );
+  $form['reset'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete'),
+    '#attributes' => array('onclick' => 'return(confirm("'. t("Are you sure you want to reset this form?\\nAny customizations will be lost.") .'"));'),
   );
   return $form;
 }
