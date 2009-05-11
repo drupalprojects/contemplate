@@ -201,14 +201,15 @@ function contemplate_admin() {
   contemplate_refresh_files();
   $types = node_get_types();
   $templates = contemplate_get_templates();
-  $enabled = t('Enabled');
+  $enabled = t('Enabled: Textfield');
   $disabled = t('Disabled');
+  $file = t('Enabled: Disk');
   foreach ($types as $type) {
     $rows[] = array(
       $type->name,
-      isset($templates[$type->type]['teaser']) ? ($templates[$type->type]['teaser-enabled'] ? $enabled : $disabled) : '',
-      isset($templates[$type->type]['body']) ? ($templates[$type->type]['body-enabled'] ? $enabled : $disabled) : '',
-      isset($templates[$type->type]['rss']) ? ($templates[$type->type]['rss-enabled'] ? $enabled : $disabled) : '',
+      isset($templates[$type->type]['teaser-enabled']) ? ($templates[$type->type]['teaser-enabled'] ? ($templates[$type->type]['teaser-file'] ? $file : $enabled) : $disabled) : '',
+      isset($templates[$type->type]['body-enabled']) ? ($templates[$type->type]['body-enabled'] ? ($templates[$type->type]['body-file'] ? $file : $enabled) : $disabled) : '',
+      isset($templates[$type->type]['rss-enabled']) ? ($templates[$type->type]['rss-enabled'] ? ($templates[$type->type]['rss-file'] ? $file : $enabled) : $disabled) : '',
       l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/node-type/'. $type->type .'/template'),
       (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/node-type/'. $type->type .'/template/delete', array('query' => $destination)) : ''),
     );
@@ -502,8 +503,7 @@ function contemplate_get_template($type) {
  * @return unknown
  */
 function contemplate_get_templates() {
-  $result = db_query('SELECT * FROM {contemplate}');
-  while ($r = db_fetch_object($result)) {
+  foreach (node_get_types() AS $r) {
     /*
     $templates[$r->type]['teaser'] = $r->teaser;
     $templates[$r->type]['body'] = $r->body;
