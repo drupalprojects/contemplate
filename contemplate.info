@@ -2,4 +2,4 @@
 name = Content Templates
 description = Create templates to customize output of teaser and body content.
 package = CCK
-core = 6.x
+core = 7.x
