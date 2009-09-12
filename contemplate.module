@@ -92,6 +92,9 @@ function contemplate_menu() {
   return $items;
 }
 
+/**
+ * build the system settings form
+ */
 function contemplate_system_settings() {
   $form = array();
   $form['contemplate_remove_node_content'] = array(
@@ -184,6 +187,7 @@ function contemplate_node_build_alter(&$node, $build_mode) {
         $node->body = contemplate_eval($template['body'], $node, $xml_elements);
       }
       break;
+    }
   }
 }
 
@@ -259,7 +263,7 @@ function contemplate_delete_type_form_submit($form, &$form_state) {
  */
 function contemplate_edit_type_form(&$form_state, $type = NULL) {
   $example = contemplate_examples($type);
-
+  //drupal_set_message('$example = <pre>'. print_r($example, TRUE) .'</pre>');
   $template = contemplate_get_template($type);
 
   $intro = t('<p>An example node has been loaded and its properties appear below. Click on the the property names to add them to your template.</p>');
@@ -312,8 +316,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   $form['teaser']['teaser_example']['example'] = array(
-    '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#markup' => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] .'</div><div class="description">'. $example_help .'</div></div>'
   );
 
   $form['body'] = array(
@@ -357,8 +360,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   $form['body']['body_example']['example'] = array(
-    '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">'. $intro . $example['body'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#markup' => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">'. $intro . $example['body'] .'</div><div class="description">'. $example_help .'</div></div>'
   );
 
   /* START RSS STUFF */
@@ -404,8 +406,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   $form['rss']['rss_example']['example'] = array(
-    '#type' => 'markup',
-    '#value' => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable">'. $intro . $example['rss'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#markup' => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable">'. $intro . $example['rss'] .'</div><div class="description">'. $example_help .'</div></div>'
   );
 
   $form['rss'][] = array(
@@ -478,9 +479,9 @@ function contemplate_get_template($type) {
   if (!isset($types[$type])) {
 
     // first check to see what's stored in the contemplate table
-    $types[$type] = db_fetch_array(db_query("SELECT * FROM {contemplate} WHERE type = '%s'", $type));
-    if (empty($types[$type])) {
-      $types[$type] = array('flags' => 0);
+    $types[$type] = (array)db_fetch_object(db_query("SELECT * FROM {contemplate} WHERE type = '%s'", $type));;
+    if (empty($types[$type]['flags'])) {
+      $types[$type]['flags'] = 0;
     }
     // now check to see if there are files
     $fields = array(
@@ -758,7 +759,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
           $insert = "'<?php print \$node->". addslashes($field) ." ?>'";
         }
 
-        $output .= "<dt><a href=\"#\" onclick=\"insertAtCursor(document.getElementById('edit-$target'), $insert);return FALSE;\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
+        $output .= "<dt><a href=\"#\" onclick=\"return insertAtCursor(document.getElementById('edit-$target'), $insert);\" title=\"insert this variable into $target\">\$node->$field</a>{$security}{$type}</dt>\n";
       }
       else {
         $output .= "<dt>\$node->$field$type</dt>\n";
@@ -792,15 +793,12 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 function contemplate_template_node_view($node, $build_mode) {
   $node = (object)$node;
 
-  $node = node_build_content($node, $teaser, $page);
-
-  if ($links) {
-    $node->links = module_invoke_all('link', 'node', $node, !$page);
-    drupal_alter('link', $node->links, $node);
-  }
+  $node = node_build_content($node, $build_mode);
+  //drupal_set_message('$node = <pre>'. print_r($node, TRUE) .'</pre>');
 
   // Set the proper node part, then unset unused $node part so that a bad
   // theme can not open a security hole.
+  /*
   $content = drupal_render($node->content);
   if ($teaser) {
     $node->teaser = $content;
@@ -810,9 +808,7 @@ function contemplate_template_node_view($node, $build_mode) {
     $node->body = $content;
     unset($node->teaser);
   }
-
-  // Allow modules to modify the fully-built node.
-  module_invoke_all('node_build_alter', $node, $build_mode);
+  */
   return $node;
 }
 
@@ -854,7 +850,9 @@ function contemplate_eval_enclosure($field, $node) {
   return FALSE;
 }
 
-
+/**
+ * get fields for the template edit form
+ */
 function contemplate_cck_get_fields($type_name) {
   if (module_exists('content')) {
     $return = array();

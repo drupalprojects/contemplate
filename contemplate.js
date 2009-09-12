@@ -1,6 +1,4 @@
-// $Id$ 
-(function ($) {
-
+// $Id$
 function insertAtCursor(myField, myValue) {
   //IE support
   if (document.selection) {
@@ -19,18 +17,21 @@ function insertAtCursor(myField, myValue) {
   } else {
     myField.value += myValue;
   }
+  return false;
 }
 
-// calling the function
-// insertAtCursor(document.formName.fieldName, ‘this value’);
+(function ($) {
 
-Drupal.contemplate = new Object();
+  // calling the function
+  // insertAtCursor(document.formName.fieldName, ‘this value’);
 
-Drupal.contemplate.toggle = function() {
-  var target = $(this).attr('toggletarget');
-  $(target)[0].disabled = this.checked ? false : true;
-  $(target + '-keys').css('opacity', this.checked ? 1 : .2)
-}
+  Drupal.contemplate = new Object();
+
+  Drupal.contemplate.toggle = function() {
+    var target = $(this).attr('toggletarget');
+    $(target)[0].disabled = this.checked ? false : true;
+    $(target + '-keys').css('opacity', this.checked ? 1 : .2)
+  }
 
   $(document).ready(function(){
     $("input[id*=enable]")
