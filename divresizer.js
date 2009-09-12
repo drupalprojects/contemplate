@@ -1,4 +1,6 @@
 // $Id$
+(function ($) {
+  
 Drupal.contemplate.divResizable = function() {
   $('div.resizable:not(.processed)').each(function() {
     var div = $(this).addClass('processed'), staticOffset = null;
@@ -28,6 +30,6 @@ Drupal.contemplate.divResizable = function() {
   });
 }
 
-if (Drupal.jsEnabled) {
-  $(document).ready(Drupal.contemplate.divResizable);
-}
+$(document).ready(Drupal.contemplate.divResizable);
+
+})(jQuery);

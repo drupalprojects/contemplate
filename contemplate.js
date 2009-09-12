@@ -1,3 +1,6 @@
+// $Id$ 
+(function ($) {
+
 function insertAtCursor(myField, myValue) {
   //IE support
   if (document.selection) {
@@ -29,9 +32,10 @@ Drupal.contemplate.toggle = function() {
   $(target + '-keys').css('opacity', this.checked ? 1 : .2)
 }
 
-if (Drupal.jsEnabled) {
   $(document).ready(function(){
-    $("input[@id*=enable]")
+    $("input[id*=enable]")
       .click(Drupal.contemplate.toggle)
   });
-}
+
+
+})(jQuery);

@@ -41,7 +41,7 @@ function contemplate_help($path, $arg) {
  * Menu callback; loads a flexifilter object
  */
 function contemplate_node_type_load($index, $map_array) {
-  $types = node_get_types();
+  $types = node_type_get_types();
   $type = $map_array[$index];
   if (!$types[$type]) { // if the argument isn't a valid node type, return FALSE
     return FALSE;
@@ -71,8 +71,8 @@ function contemplate_menu() {
     'page arguments' => array('admin/content/types/templates'),
     'access arguments' => array('administer templates'),
   );
-  $node_types = node_get_types();
-  foreach (node_get_types('types', NULL, TRUE) as $type) {
+  $node_types = node_type_get_types();
+  foreach ($node_types as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
     $items['admin/content/node-type/'. $type_url_str .'/template'] = array(
       'title' => 'Template',
@@ -128,34 +128,31 @@ function contemplate_system_settings() {
  * Implementation of hook_perm().
  *
  */
-function contemplate_perm() {
-  return array('administer templates');
+function contemplate_permissions() {
+  return array(
+    'administer templates' => array(
+      'title' => t('Administer Content Templates'),
+      'description' => t('Create, delete, make changes to content templates'),
+    ),
+  );
 }
 
 /**
- * Implementation of hook_nodeapi().
+ * Implementation of hook_node_view().
  */
-function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
-  // added $xml_elements, this will add the ability to add other
-  // xml_elements to rss feeds other than just the file enclosure
-  // in PHP 4 default variables may not be passed by reference so for PHP 4
-  // compatability we need to make sure this variable exists and is passed
-  // in for each call to contemplate_eval()
-  $xml_elements = array();
-  switch ($op) {
-    case 'rss item':
+function contemplate_node_view(&$node, $build_mode) {
+  switch ($build_mode) {
+    case 'rss':
       if ($template = contemplate_get_template($node->type)) {
         if (CONTEMPLATE_RSS_ENABLED & $template['flags'] && trim($template['rss'])) { // only if there's content in teaser field
+          $xml_elements = array();
           $rss = contemplate_eval($template['rss'], $node, $xml_elements);
-          if (isset($xml_elements)) {
-            $return = $xml_elements;
-          }
           // set both teaser and body because we don't know how they've set Drupal
           $node->teaser = $rss;
           $node->body = $rss;
           if (trim($template['enclosure'])) {
             if ($file = contemplate_eval_enclosure($template['enclosure'], $node, $xml_elements)) {
-              $return[] = array(
+              $xml_elements[] = array(
                 'key' => 'enclosure',
                 'attributes' => array(
                   'url' => file_create_url($file->filepath),
@@ -165,32 +162,40 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
               );
             }
           }
-          return $return;
+          $node->rss_elements = $xml_elements;
         }
-      }
-      break;
-
-    case 'alter':
-      if ($template = contemplate_get_template($node->type)) {
-        if ($teaser) {
-          if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
-            $node->teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
-          }
-        }
-        elseif (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-          $node->body = contemplate_eval($template['body'], $node, $xml_elements);
-        }
-      }
-      break;
-    case 'update index':
-      if (variable_get('contemplate_before_search_index', FALSE)) {
-        contemplate_nodeapi($node, 'alter');
-        return $node->body;
       }
       break;
   }
 }
 
+/**
+ * Implementation of hook_node_build_alter().
+ */
+function contemplate_node_build_alter(&$node, $build_mode) {
+  if ($template = contemplate_get_template($node->type)) {
+    switch ($build_mode) {
+      case 'teaser':
+      if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
+        $node->teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
+      }
+    case 'full':
+      if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
+        $node->body = contemplate_eval($template['body'], $node, $xml_elements);
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_node_update_index().
+ */
+function contemplatehook_node_update_index(&$node) {
+  if (variable_get('contemplate_before_search_index', FALSE)) {
+    contemplate_nodeapi($node, 'alter');
+    return $node->body;
+  }
+}
 /**
  * Admin page... list out the node types
  *
@@ -199,7 +204,7 @@ function contemplate_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 function contemplate_admin() {
   $destination = drupal_get_destination();
   contemplate_refresh_files();
-  $types = node_get_types();
+  $types = node_type_get_types();
   $templates = contemplate_get_templates();
   $enabled = t('Enabled: Textfield');
   $disabled = t('Disabled');
@@ -445,7 +450,7 @@ function contemplate_edit_type($type = array()) {
   if (empty($type)) { // if the argument isn't a valid node type, output admin page
     return contemplate_admin();
   }
-  drupal_set_title(t('Template for %type', array('%type' => $type->name)));
+  drupal_set_title(t('Template for %type', array('%type' => $type->name)), PASS_THROUGH);
   if (arg(0) == 'admin' && arg(1) == 'content' && arg(4) == 'template') {
     $breadcrumbs = drupal_get_breadcrumb();
     $type_crumb = array_pop($breadcrumbs);
@@ -502,7 +507,7 @@ function contemplate_get_template($type) {
  * @return unknown
  */
 function contemplate_get_templates() {
-  foreach (node_get_types() AS $r) {
+  foreach (node_type_get_types() AS $r) {
     /*
     $templates[$r->type]['teaser'] = $r->teaser;
     $templates[$r->type]['body'] = $r->body;
@@ -569,7 +574,7 @@ function contemplate_available_files() {
  *
  */
 function contemplate_refresh_files() {
-  $data = drupal_system_listing('\.tpl\.php$', 'contemplates', 'name', 0);
+  $data = drupal_system_listing('/\.tpl\.php$/', 'contemplates', 'name', 0);
   $conf = conf_path();
   db_query("DELETE FROM {contemplate_files} WHERE site = '%s'", $conf);
   db_query("INSERT INTO {contemplate_files} (site, data) VALUES ('%s', '%s')", $conf, serialize($data));
@@ -626,8 +631,8 @@ function contemplate_node_views($type) {
   // get the nid of the latest node of this type
   $nid = db_result(db_query("SELECT nid FROM {node} WHERE type = '%s' ORDER BY created DESC", $type));
   if ($nid) {
-    $bodynode = contemplate_node_view(node_load($nid), FALSE, TRUE);
-    $teasernode = contemplate_node_view(node_load($nid), TRUE, FALSE);
+    $bodynode = contemplate_template_node_view(node_load($nid), 'full');
+    $teasernode = contemplate_template_node_view(node_load($nid), 'teaser');
     return array('body' => $bodynode, 'teaser' => $teasernode);
   }
   else {
@@ -784,7 +789,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
  *
  * - used only on the template editing pages
  */
-function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE) {
+function contemplate_template_node_view($node, $build_mode) {
   $node = (object)$node;
 
   $node = node_build_content($node, $teaser, $page);
@@ -807,8 +812,7 @@ function contemplate_node_view($node, $teaser = FALSE, $page = FALSE, $links = T
   }
 
   // Allow modules to modify the fully-built node.
-  node_invoke_nodeapi($node, 'alter', $teaser, $page);
-
+  module_invoke_all('node_build_alter', $node, $build_mode);
   return $node;
 }
 

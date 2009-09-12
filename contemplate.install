@@ -9,27 +9,27 @@
 function contemplate_schema() {
   $schema['contemplate_files'] = array(
     'fields' => array(
-      'site' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'description' => t('Which site in the site\s directory this is listed under' )),
-      'data' => array('type' => 'blob', 'size' => 'big', 'not null' => TRUE, 'description' => t('the data in the template file?'))
+      'site' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'description' => 'Which site in the site\s directory this is listed under' ),
+      'data' => array('type' => 'blob', 'size' => 'big', 'not null' => TRUE, 'description' => 'the data in the template file?')
     ),
     'unique keys' => array(
       'site' => array('site')
     ),
-    'description' => t('This tables lists the files that are use as templates'),
+    'description' => 'This tables lists the files that are use as templates',
   );
   $schema['contemplate'] = array(
     'fields' => array(
-      'type' => array('type' => 'varchar', 'length' => '32', 'not null' => TRUE, 'default' => '', 'description' => t('What node type is this Template for?')),
-      'teaser' => array('type' => 'text', 'not null' => TRUE, 'description' => t('tempalte for teaser')),
-      'body' => array('type' => 'text', 'not null' => TRUE, 'description' => t('tempalte for body')),
-      'rss' => array('type' => 'text', 'not null' => TRUE, 'description' => t('tempalte for rss')),
-      'enclosure' => array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'description' => t('enclosure information to be used with this node type.')),
-     'flags' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 7, 'disp-width' => '10', 'description' => t('bitmask of flags for this node type, which are enables, etc...'))
+      'type' => array('type' => 'varchar', 'length' => '32', 'not null' => TRUE, 'default' => '', 'description' => 'What node type is this Template for?'),
+      'teaser' => array('type' => 'text', 'not null' => TRUE, 'description' => 'tempalte for teaser'),
+      'body' => array('type' => 'text', 'not null' => TRUE, 'description' => 'tempalte for body'),
+      'rss' => array('type' => 'text', 'not null' => TRUE, 'description' => 'tempalte for rss'),
+      'enclosure' => array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'description' => 'enclosure information to be used with this node type.'),
+     'flags' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 7, 'disp-width' => '10', 'description' => 'bitmask of flags for this node type, which are enables, etc...')
     ),
     'indexes' => array(
       'type' => array('type')
     ),
-    'description' => t('Store data for Content Templates for each node type, if ther be any.'),
+    'description' => 'Store data for Content Templates for each node type, if ther be any.',
   );
   return $schema;
 
