@@ -1,6 +1,6 @@
 // $Id$
 (function ($) {
-  
+
 Drupal.contemplate.divResizable = function() {
   $('div.resizable:not(.processed)').each(function() {
     var div = $(this).addClass('processed'), staticOffset = null;

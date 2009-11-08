@@ -24,7 +24,7 @@ function contemplate_schema() {
       'body' => array('type' => 'text', 'not null' => TRUE, 'description' => 'tempalte for body'),
       'rss' => array('type' => 'text', 'not null' => TRUE, 'description' => 'tempalte for rss'),
       'enclosure' => array('type' => 'varchar', 'length' => '128', 'not null' => TRUE, 'description' => 'enclosure information to be used with this node type.'),
-     'flags' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 7, 'disp-width' => '10', 'description' => 'bitmask of flags for this node type, which are enables, etc...')
+     'flags' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 7, 'disp-width' => '10', 'description' => 'Bitmask of flags for this node type, which are enabled, etc...')
     ),
     'indexes' => array(
       'type' => array('type')
