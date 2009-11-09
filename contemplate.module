@@ -169,24 +169,6 @@ function contemplate_node_view(&$node, $build_mode) {
   }
 }
 
-/**
- * Implementation of hook_node_build_alter().
- */
-function contemplate_node_build_alter(&$node, $build_mode) {
-  if ($template = contemplate_get_template(node_type_get_type($node))) {
-    switch ($build_mode) {
-      case 'teaser':
-      if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
-        $node->teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
-      }
-    case 'full':
-      if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-        $node->body = contemplate_eval($template['body'], $node, $xml_elements);
-      }
-      break;
-    }
-  }
-}
 
 /**
  * Implementation of hook_node_update_index().
@@ -507,16 +489,10 @@ function contemplate_get_template($type) {
  * Get all of the current templates
  * Only used on admin page
  *
- * @return unknown
+ * @return array of template arrays
  */
 function contemplate_get_templates() {
   foreach (node_type_get_types() AS $r) {
-    /*
-    $templates[$r->type]['teaser'] = $r->teaser;
-    $templates[$r->type]['body'] = $r->body;
-    $templates[$r->type]['rss'] = $r->rss;
-    $templates[$r->type]['enclosure'] = $r->enclosure;
-    */
     $templates[$r->type] = contemplate_get_template($r);
   }
   return $templates;
@@ -818,7 +794,6 @@ function contemplate_template_node_view($node, $build_mode) {
   $node = (object)$node;
 
   $node = node_build_content($node, $build_mode);
-  //drupal_set_message('$node = <pre>'. print_r($node, TRUE) .'</pre>');
 
   // Set the proper node part, then unset unused $node part so that a bad
   // theme can not open a security hole.
@@ -835,7 +810,6 @@ function contemplate_template_node_view($node, $build_mode) {
   */
   return $node;
 }
-
 
 /**
  * Copy of drupal_eval(), but extracts the node object so that variables are available to the template
@@ -931,4 +905,26 @@ function theme_contemplate_field(&$field) {
   $output .= '</div>'."\n";
 
   return $output;
+}
+/**
+ * Implementation of hook_node_build_alter().
+ */
+function contemplate_node_build_alter(&$node, $build_mode) {
+  if ($template = contemplate_get_template(node_type_get_type($node))) {
+    switch ($build_mode) {
+      case 'teaser':
+      if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
+        $teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
+        $node->content['teaser']['items'][0]['#item']['value'] = $teaser;
+        $node->content['teaser']['items'][0]['#item']['safe'] = $teaser;
+      }
+    case 'full':
+      if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
+         $body = contemplate_eval($template['body'], $node, $xml_elements);
+         $node->content['body']['items'][0]['#item']['value'] = $body;
+         $node->content['body']['items'][0]['#item']['safe'] = $body;
+      }
+      break;
+    }
+  }
 }
