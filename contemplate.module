@@ -888,7 +888,7 @@ function contemplate_theme() {
  *
  * @return unknown
  */
-function theme_contemplate_field(&$field) {
+function theme_contemplate_field($field) {
   $output = '<div class="field field-type-'. strtr($field['type'], '_', '-') .' field-'. strtr($field['field_name'], '_', '-') .'">'."\n";
   $output .= '  <h3 class="field-label">'. $field['widget']['label'] .'</h3>'."\n";
   $output .= '  <div class="field-items">'."\n";
