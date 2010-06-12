@@ -12,7 +12,7 @@ define('CONTEMPLATE_RSS_ENABLED', 0x0004);
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function contemplate_help($path, $arg) {
   switch ($path) {
@@ -52,7 +52,7 @@ function contemplate_node_type_load($index, $map_array) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function contemplate_menu() {
   $items = array();
@@ -125,8 +125,7 @@ function contemplate_system_settings() {
 }
 
 /**
- * Implementation of hook_perm().
- *
+ * Implements hook_perm().
  */
 function contemplate_permissions() {
   return array(
@@ -138,7 +137,7 @@ function contemplate_permissions() {
 }
 
 /**
- * Implementation of hook_node_view().
+ * Implements hook_node_view().
  */
 function contemplate_node_view(&$node, $build_mode) {
   switch ($build_mode) {
@@ -171,7 +170,7 @@ function contemplate_node_view(&$node, $build_mode) {
 
 
 /**
- * Implementation of hook_node_update_index().
+ * Implements hook_node_update_index().
  */
 function contemplatehook_node_update_index(&$node) {
   if (variable_get('contemplate_before_search_index', FALSE)) {
@@ -841,7 +840,7 @@ function contemplate_cck_get_fields($type_name) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function contemplate_theme() {
   return array(
@@ -874,7 +873,7 @@ function theme_contemplate_field(&$field) {
 }
 
 /**
- * Implementation of hook_node_build_alter().
+ * Implements hook_node_build_alter().
  *
  * Apply the template changes, if any, to the build.
  *//*

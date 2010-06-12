@@ -72,7 +72,7 @@ function contemplate_update_2() {
 }
 
 /**
- * clear the cache to get the updates to hook_menu().
+ * clear the cache to get the updates to the menu().
  */
 function contemplate_update_6102() {
   cache_clear_all();
