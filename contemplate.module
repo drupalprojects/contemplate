@@ -467,9 +467,9 @@ function contemplate_get_template($type) {
     }
     // now check to see if there are files
     $fields = array(
-      'teaser' => CONTEMPLATE_TEASER_ENABLED,
-      'body' => CONTEMPLATE_BODY_ENABLED,
-      'rss' => CONTEMPLATE_RSS_ENABLED
+      'teaser'  => CONTEMPLATE_TEASER_ENABLED,
+      'body'    => CONTEMPLATE_BODY_ENABLED,
+      'rss'     => CONTEMPLATE_RSS_ENABLED
     );
     foreach ($fields as $field => $enable) {
       if ($file = contemplate_get_file($type, $field)) {
@@ -480,6 +480,8 @@ function contemplate_get_template($type) {
       $types[$type->type][$field . '-enabled'] = $types[$type->type]['flags'] & $enable ? TRUE : FALSE;
     }
   }
+
+  //dpm($types[$type->type], '$types[' . $type->type . ']');
   return $types[$type->type];
 }
 
@@ -498,6 +500,7 @@ function contemplate_get_templates() {
 
 function contemplate_edit_type_form_submit($form, &$form_state) {
   $op = isset($_POST['op']) ? $_POST['op'] : '';
+  drupal_set_message('$form_state = <pre>'. print_r($form_state, TRUE) .'</pre>');
   if ($op == t('Delete')) {
     contemplate_delete($form_state['values']['type']);
     drupal_set_message(t('%type template has been reset.', array('%type' => drupal_ucfirst($form_state['values']['type']))));
@@ -791,8 +794,10 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
  *   executed template code
  */
 function contemplate_eval($tmplt, $obj, &$xml_elements) {
-  extract((array)$obj);
+  extract((array) $obj);
   $node = $obj;
+  $teaser = $node->body['und'][0]['safe_summary'];
+  $body = $node->body['und'][0]['safe_value'];
   ob_start();
   print eval('?>' . $tmplt);
   $output = ob_get_contents();
@@ -908,30 +913,64 @@ function contemplate_preprocess_node(&$vars) {
   $node = $vars['node'];
   if (function_exists('dsm')) {
     //dsm($vars, '$vars');
+    //dpm($node, '$node');
     //dsm(__line__);dsm($vars);
     //dsm($vars, '$vars');
     //dsm($node, '$node');
   } else {
     drupal_set_message('$vars = <pre>'. print_r($vars, TRUE) .'</pre>');
   }
-  /*
-  $node = $vars['node'];
+  /**/
+  //dpm(node_type_get_type($node), 'node_type_get_type($node)');
   if ($template = contemplate_get_template(node_type_get_type($node))) {
-    switch ($vars['build_mode']) {
+    //dpm($template, '$template');
+    switch ($vars['view_mode']) {
       case 'teaser':
       if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
         $teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
-        $node->content['teaser']['items'][0]['#item']['value'] = $teaser;
-        $node->content['teaser']['items'][0]['#item']['safe'] = $teaser;
+        // because we are using the template we need to remove everything else
+        // from the content array except the comments and the links, then
+        // replace the body
+        if (isset($vars['content']['comments'])) {
+          $comments = $vars['content']['comments'];
+        }
+        else {
+          $comments = FALSE;
+        }
+        $vars['content']['body'][0]['#markup'] = $teaser;
+        $vars['content'] = array(
+          'body'        => $vars['content']['body'],
+          'links'       => $vars['content']['links'],
+        );
+        if ($comments) {
+          $vars['content']['comments'] = $comments;
+        }
       }
     case 'full':
       if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-         $body = contemplate_eval($template['body'], $node, $xml_elements);
-         $node->content['body']['items'][0]['#item']['value'] = $body;
-         $node->content['body']['items'][0]['#item']['safe'] = $body;
+        $body = contemplate_eval($template['body'], $node, $xml_elements);dpm($tbody, '$body');
+        // because we are using the template we need to remove everything else
+        // from the content array except the comments and the links, then
+        // replace the body
+        if (isset($vars['content']['comments'])) {
+          $comments = $vars['content']['comments'];
+        }
+        else {
+          $comments = FALSE;
+        }
+        $vars['content']['body'][0]['#markup'] = $body;
+        $vars['content'] = array(
+          'body'        => $vars['content']['body'],
+          'links'       => $vars['content']['links'],
+        );
+        if ($comments) {
+          $vars['content']['comments'] = $comments;
+        }
       }
       break;
     }
   }
-  */
+  //dpm($node, '$node');
+  //dsm($vars, '$vars');
+  /**/
 }
