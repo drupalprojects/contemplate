@@ -631,8 +631,9 @@ function contemplate_node_views($type) {
   if (isset($nid) && $nid) {
     //$bodynode = contemplate_template_node_view(node_load($nid), 'full');
     //$teasernode = contemplate_template_node_view(node_load($nid), 'teaser');
-    $bodynode = node_build(node_load($nid), 'full');
-    $teasernode = node_build(node_load($nid), 'teaser');
+    $teasernode = $bodynode = node_load($nid);
+    node_build_content($bodynode , 'full');
+    node_build_content($teasernode, 'teaser');
     return array('body' => $bodynode, 'teaser' => $teasernode);
   }
   else {
@@ -657,9 +658,9 @@ function contemplate_examples($type) {
   drupal_add_css($path . '/contemplate.css');
   $recursion_limit_hit = 0;
   if ($views = contemplate_node_views($type)) {
-    $boutput = contemplate_array_variables((array)$views['body']['#node'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
-    $toutput = contemplate_array_variables((array)$views['teaser']['#node'], 'teaserfield', FALSE, FALSE, 0, $recursion_limit_hit);
-    $routput = contemplate_array_variables((array)$views['teaser']['#node'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
+    $boutput = contemplate_array_variables((array) $views['body'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $toutput = contemplate_array_variables((array) $views['teaser'], 'teaserfield', FALSE, FALSE, 0, $recursion_limit_hit);
+    $routput = contemplate_array_variables((array) $views['teaser'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
   }
   else {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type->type));
@@ -902,9 +903,17 @@ function contemplate_node_build_alter(&$build) {
     }
   }
 }*/
-function contemplate_preprocess_node($vars) {
-  dsm(908);dsm($vars);
-  dsm('node');dsm($vars['node']);
+
+function contemplate_preprocess_node(&$vars) {
+  $node = $vars['node'];
+  if (function_exists('dsm')) {
+    //dsm($vars, '$vars');
+    //dsm(__line__);dsm($vars);
+    //dsm($vars, '$vars');
+    //dsm($node, '$node');
+  } else {
+    drupal_set_message('$vars = <pre>'. print_r($vars, TRUE) .'</pre>');
+  }
   /*
   $node = $vars['node'];
   if ($template = contemplate_get_template(node_type_get_type($node))) {
@@ -923,5 +932,6 @@ function contemplate_preprocess_node($vars) {
       }
       break;
     }
-  }/**/
+  }
+  */
 }
