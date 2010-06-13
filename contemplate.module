@@ -2,9 +2,9 @@
 // $Id$
 // by Jeff Robbins - Lullabot - www.lullabot.com
 
-define('CONTEMPLATE_TEASER_ENABLED', 0x0001);
-define('CONTEMPLATE_BODY_ENABLED', 0x0002);
-define('CONTEMPLATE_RSS_ENABLED', 0x0004);
+define('CONTEMPLATE_TEASER_ENABLED',  0x0001);
+define('CONTEMPLATE_BODY_ENABLED',    0x0002);
+define('CONTEMPLATE_RSS_ENABLED',     0x0004);
 
 /**
  * @file
@@ -510,16 +510,16 @@ function contemplate_edit_type_form_submit($form, &$form_state) {
 }
 
 function contemplate_save($edit) {
-  $types = node_type_get_types();
-  $flags = 0;
-  $type = $types[$edit['values']['type']];
-  $teaserfield = !empty($edit['values']['teaserfield']) ? $edit['values']['teaserfield'] : '';
-  $bodyfield = !empty($edit['values']['bodyfield']) ? $edit['values']['bodyfield'] : '';
-  $rssfield = !empty($edit['values']['rssfield']) ? $edit['values']['rssfield'] : '';
-  $enclosure = !empty($edit['values']['enclosure']) ? $edit['values']['enclosure'] : '';
-  $flags |= !empty($edit['values']['teaser-enable']) ? CONTEMPLATE_TEASER_ENABLED : 0;
-  $flags |= !empty($edit['values']['body-enable']) ? CONTEMPLATE_BODY_ENABLED : 0;
-  $flags |= !empty($edit['values']['rss-enable']) ? CONTEMPLATE_RSS_ENABLED : 0;
+  $types  = node_type_get_types();
+  $flags  = 0;
+  $type   = $types[$edit['values']['type']];
+  $teaserfield  = !empty($edit['values']['teaserfield'])    ? $edit['values']['teaserfield']  : '';
+  $bodyfield    = !empty($edit['values']['bodyfield'])      ? $edit['values']['bodyfield']    : '';
+  $rssfield     = !empty($edit['values']['rssfield'])       ? $edit['values']['rssfield']     : '';
+  $enclosure    = !empty($edit['values']['enclosure'])      ? $edit['values']['enclosure']    : '';
+  $flags       |= !empty($edit['values']['teaser-enable'])  ? CONTEMPLATE_TEASER_ENABLED      : 0;
+  $flags       |= !empty($edit['values']['body-enable'])    ? CONTEMPLATE_BODY_ENABLED        : 0;
+  $flags       |= !empty($edit['values']['rss-enable'])     ? CONTEMPLATE_RSS_ENABLED         : 0;
 
   contemplate_delete($type);
   $id = db_insert('contemplate')
@@ -560,11 +560,9 @@ function contemplate_available_files() {
 }
 
 /**
- * Refresh the listing of template files
- * for the current site
+ * Refresh the listing of template files for the current site
  *
- * This gets refreshes the file listing whenever a ConTemplate admin screens is called
- *
+ * This refreshes the file listing whenever a ConTemplate admin screen is called
  */
 function contemplate_refresh_files() {
   $data = drupal_system_listing('/\.tpl\.php$/', 'contemplates', 'name', 0);
@@ -578,7 +576,8 @@ function contemplate_refresh_files() {
 
 
 /**
- * Given a node type and field type, return the content of the most specific file
+ * Given a node type and field type, return the content of the most specific
+ * file
  *
  * @param string $node_type
  * type of node
