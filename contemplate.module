@@ -480,8 +480,6 @@ function contemplate_get_template($type) {
       $types[$type->type][$field . '-enabled'] = $types[$type->type]['flags'] & $enable ? TRUE : FALSE;
     }
   }
-
-  //dpm($types[$type->type], '$types[' . $type->type . ']');
   return $types[$type->type];
 }
 
@@ -879,51 +877,14 @@ function theme_contemplate_field(&$field) {
 }
 
 /**
- * Implements hook_node_build_alter().
+ * Implements tempalte_prerocess_node().
  *
- * Apply the template changes, if any, to the build.
- *//*
-function contemplate_node_build_alter(&$build) {
-  $node = $build['#node'];
-  if (!isset($node->content)) {
-    $temp_build = $build;
-    unset($temp_build['#node']);
-    $node->content = $temp_build;
-  }
-  if ($template = contemplate_get_template(node_type_get_type($node))) {
-    switch ($build['#build_mode']) {
-      case 'teaser':
-      if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
-        $teaser = contemplate_eval($template['teaser'], $build, $xml_elements);
-        $node->content['teaser']['items'][0]['#item']['value'] = $teaser;
-        $node->content['teaser']['items'][0]['#item']['safe'] = $teaser;
-      }
-    case 'full':
-      if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-         $body = contemplate_eval($template['body'], $build, $xml_elements);
-         $node->content['body']['items'][0]['#item']['value'] = $body;
-         $node->content['body']['items'][0]['#item']['safe'] = $body;
-      }
-      break;
-    }
-  }
-}*/
-
+ * because hook_nodeapi('alter') is no longer here I decided to change the node
+ * at just before the template gets invoked
+ */
 function contemplate_preprocess_node(&$vars) {
   $node = $vars['node'];
-  if (function_exists('dsm')) {
-    //dsm($vars, '$vars');
-    //dpm($node, '$node');
-    //dsm(__line__);dsm($vars);
-    //dsm($vars, '$vars');
-    //dsm($node, '$node');
-  } else {
-    drupal_set_message('$vars = <pre>'. print_r($vars, TRUE) .'</pre>');
-  }
-  /**/
-  //dpm(node_type_get_type($node), 'node_type_get_type($node)');
   if ($template = contemplate_get_template(node_type_get_type($node))) {
-    //dpm($template, '$template');
     switch ($vars['view_mode']) {
       case 'teaser':
       if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
@@ -948,7 +909,7 @@ function contemplate_preprocess_node(&$vars) {
       }
     case 'full':
       if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
-        $body = contemplate_eval($template['body'], $node, $xml_elements);dpm($tbody, '$body');
+        $body = contemplate_eval($template['body'], $node, $xml_elements);
         // because we are using the template we need to remove everything else
         // from the content array except the comments and the links, then
         // replace the body
@@ -970,7 +931,4 @@ function contemplate_preprocess_node(&$vars) {
       break;
     }
   }
-  //dpm($node, '$node');
-  //dsm($vars, '$vars');
-  /**/
 }
