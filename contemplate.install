@@ -76,6 +76,7 @@ function contemplate_update_2() {
  */
 function contemplate_update_6102() {
   cache_clear_all();
+  return array();
 }
 
 function contemplate_uninstall() {
