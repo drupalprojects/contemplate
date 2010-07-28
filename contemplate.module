@@ -211,8 +211,8 @@ function contemplate_admin() {
       isset($templates[$type->type]['teaser-enabled']) ? ($templates[$type->type]['teaser-enabled'] ? ($templates[$type->type]['teaser-file'] ? $file : $enabled) : $disabled) : '',
       isset($templates[$type->type]['body-enabled']) ? ($templates[$type->type]['body-enabled'] ? ($templates[$type->type]['body-file'] ? $file : $enabled) : $disabled) : '',
       isset($templates[$type->type]['rss-enabled']) ? ($templates[$type->type]['rss-enabled'] ? ($templates[$type->type]['rss-file'] ? $file : $enabled) : $disabled) : '',
-      l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/node-type/'. $type_url_str .'/template'),
-      (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/node-type/'. $type_url_str .'/template/delete', array('query' => $destination)) : ''),
+      l(isset($templates[$type->type]) ? t('edit template') : t('create template'), 'admin/content/node-type/' . $type_url_str . '/template'),
+      (isset($templates[$type->type]) ? l(t('delete template'), 'admin/content/node-type/' . $type_url_str . '/template/delete', array('query' => $destination)) : ''),
     );
   }
   $header = array(
@@ -308,7 +308,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
 
   $form['teaser']['teaser_example']['example'] = array(
     '#type'     => 'markup',
-    '#value'    => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#value'    => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">'. $intro . $example['teaser'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   $form['body'] = array(
@@ -352,7 +352,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
 
   $form['body']['body_example']['example'] = array(
     '#type'         => 'markup',
-    '#value'        => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">'. $intro . $example['body'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#value'        => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">' . $intro . $example['body'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   /* START RSS STUFF */
@@ -399,7 +399,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
 
   $form['rss']['rss_example']['example'] = array(
     '#type'             => 'markup',
-    '#value'            => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable">'. $intro . $example['rss'] .'</div><div class="description">'. $example_help .'</div></div>'
+    '#value'            => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable">' . $intro . $example['rss'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   $form['rss'][] = array(
@@ -435,7 +435,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   $form['reset'] = array(
     '#type'       => 'submit',
     '#value'      => t('Delete'),
-    '#attributes' => array('onclick' => 'return(confirm("'. t("Are you sure you want to reset this form?\\nAny customizations will be lost.") .'"));'),
+    '#attributes' => array('onclick' => 'return(confirm("' . t("Are you sure you want to reset this form?\\nAny customizations will be lost.") . '"));'),
   );
   return $form;
 }
@@ -485,10 +485,10 @@ function contemplate_get_template($type) {
     foreach ($fields as $field => $enable) {
       if ($file = contemplate_get_file($type, $field)) {
         $types[$type][$field] = $file->contents;
-        $types[$type][$field .'-file'] = $file;
+        $types[$type][$field . '-file'] = $file;
         $types[$type]['flags'] |= $enable; // if there is a file, the field is always enabled...
       }
-      $types[$type][$field .'-enabled'] = $types[$type]['flags'] & $enable ? TRUE : FALSE;
+      $types[$type][$field . '-enabled'] = $types[$type]['flags'] & $enable ? TRUE : FALSE;
     }
   }
   return $types[$type];
@@ -527,13 +527,13 @@ function contemplate_edit_type_form_submit($form, &$form_state) {
 
 function contemplate_save($edit) {
   $type         = $edit['values']['type'];
-  $teaserfield  = !empty($edit['values']['teaserfield']) ? $edit['values']['teaserfield'] : '';
-  $bodyfield    = !empty($edit['values']['bodyfield']) ? $edit['values']['bodyfield'] : '';
-  $rssfield     = !empty($edit['values']['rssfield']) ? $edit['values']['rssfield'] : '';
-  $enclosure    = !empty($edit['values']['enclosure']) ? $edit['values']['enclosure'] : '';
-  $flags       |= !empty($edit['values']['teaser-enable']) ? CONTEMPLATE_TEASER_ENABLED : 0;
-  $flags       |= !empty($edit['values']['body-enable']) ? CONTEMPLATE_BODY_ENABLED : 0;
-  $flags       |= !empty($edit['values']['rss-enable']) ? CONTEMPLATE_RSS_ENABLED : 0;
+  $teaserfield  = !empty($edit['values']['teaserfield'])    ? $edit['values']['teaserfield']  : '';
+  $bodyfield    = !empty($edit['values']['bodyfield'])      ? $edit['values']['bodyfield']    : '';
+  $rssfield     = !empty($edit['values']['rssfield'])       ? $edit['values']['rssfield']     : '';
+  $enclosure    = !empty($edit['values']['enclosure'])      ? $edit['values']['enclosure']    : '';
+  $flags       |= !empty($edit['values']['teaser-enable'])  ? CONTEMPLATE_TEASER_ENABLED      : 0;
+  $flags       |= !empty($edit['values']['body-enable'])    ? CONTEMPLATE_BODY_ENABLED        : 0;
+  $flags       |= !empty($edit['values']['rss-enable'])     ? CONTEMPLATE_RSS_ENABLED         : 0;
 
   contemplate_delete($type);
   $sql = "INSERT INTO {contemplate} (type, teaser, body, rss, enclosure, flags) VALUES ('%s', '%s', '%s', '%s', '%s', %d)";
@@ -592,11 +592,11 @@ function contemplate_refresh_files() {
  */
 function contemplate_get_file($node_type, $field) {
   $files = contemplate_available_files();
-  if (isset($files['node-'. $node_type .'-'. $field .'.tpl'])) {
-    $file = $files['node-'. $node_type .'-'. $field .'.tpl'];
+  if (isset($files['node-' . $node_type . '-' . $field . '.tpl'])) {
+    $file = $files['node-' . $node_type . '-' . $field . '.tpl'];
   }
-  elseif (isset($files['node-'. $node_type .'.tpl'])) {
-    $file = $files['node-'. $node_type .'.tpl'];
+  elseif (isset($files['node-' . $node_type . '.tpl'])) {
+    $file = $files['node-' . $node_type . '.tpl'];
   }
   elseif (isset($files['node.tpl'])) {
     $file = $files['node.tpl'];
@@ -646,9 +646,9 @@ function contemplate_node_views($type) {
  */
 function contemplate_examples($type) {
   $path = drupal_get_path('module', 'contemplate');
-  drupal_add_js($path .'/contemplate.js');
-  drupal_add_js($path .'/divresizer.js');
-  drupal_add_css($path .'/contemplate.css');
+  drupal_add_js($path . '/contemplate.js');
+  drupal_add_js($path . '/divresizer.js');
+  drupal_add_css($path . '/contemplate.css');
   $recursion_limit_hit = 0;
   if ($views = contemplate_node_views($type)) {
     $boutput = contemplate_array_variables((array)$views['body'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
@@ -660,7 +660,7 @@ function contemplate_examples($type) {
     $toutput = $boutput = $routput = $error;
   }
   if ($recursion_limit_hit) {
-    $message = t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto '. l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') .'. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit));
+    $message = t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto ' . l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') . '. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit));
     if (variable_get('error_level', 1)) {
       drupal_set_message($message, 'warning');
     }
@@ -739,13 +739,13 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
 
       $type = '';
       if (!is_string($value)) {
-        $type = ' ('. gettype($value) .')';
+        $type = ' (' . gettype($value) . ')';
       }
 
       if (!is_array($value) && !is_object($value)) {
         if ($field == 'title' || (drupal_substr($field, -9) == "['value']")) {
           $security = t(' <span style="color:red;font-weight:bold">**</span>');
-          $insert = "'<?php print check_plain(\$node->". addslashes($field) .") ?>'";
+          $insert = "'<?php print check_plain(\$node->" . addslashes($field) . ") ?>'";
         }
         else {
           $security = '';
@@ -888,7 +888,7 @@ function contemplate_theme() {
  * @return unknown
  */
 function theme_contemplate_field($field) {
-  $output = '<div class="field field-type-' . strtr($field['type'], '_', '-') . ' field-' . strtr($field['field_name'], '_', '-') .'">'."\n";
+  $output = '<div class="field field-type-' . strtr($field['type'], '_', '-') . ' field-' . strtr($field['field_name'], '_', '-') . '">' . "\n";
   $output .= '  <h3 class="field-label">' . $field['widget']['label'] . '</h3>' . "\n";
   $output .= '  <div class="field-items">' . "\n";
   if ($field['multiple']) {
