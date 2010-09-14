@@ -139,7 +139,7 @@ function contemplate_permissions() {
 /**
  * Implements hook_node_view().
  */
-function contemplate_node_view(&$node, $build_mode) {
+function contemplate_node_view($node, $build_mode) {
   switch ($build_mode) {
     case 'rss':
       if ($template = contemplate_get_template($node->type)) {
@@ -239,7 +239,7 @@ function contemplate_delete_type_form_submit($form, &$form_state) {
  *
  * @param string $type
  */
-function contemplate_edit_type_form(&$form, &$form_state, $type = NULL) {
+function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   $example = contemplate_examples($type);
   $template = contemplate_get_template($type);
 
@@ -551,7 +551,7 @@ function contemplate_available_files() {
   static $data;
   if (!isset($data)) {
     $conf = conf_path();
-    $result = db_query("SELECT data FROM {contemplate_files} WHERE site = '%s'", array($conf));
+    $result = db_query("SELECT data FROM {contemplate_files} WHERE site = :site", array(':site' => $conf));
     foreach ($result as $record) {
       $data = unserialize($record->data);
     }
@@ -567,10 +567,10 @@ function contemplate_available_files() {
 function contemplate_refresh_files() {
   $data = drupal_system_listing('/\.tpl\.php$/', 'contemplates', 'name', 0);
   $conf = conf_path();
-  $sql_args = array($conf, serialize($data));
-  db_query("DELETE FROM {contemplate_files} WHERE site = '%s'", array($conf));
+  db_delete('contemplate_files')->condition('site', $conf)->execute();
   if (!empty($data)) {
-    db_query("INSERT INTO {contemplate_files} (site, data) VALUES ('%s', '%s')", $sql_args);
+    $fields = array('site' => $conf, 'data' => serialize($data));
+    db_insert('contemplate_files')->fields($fields)->execute();
   }
 }
 
@@ -604,7 +604,7 @@ function contemplate_get_file($type, $field) {
   }
 
   if (isset($file) && $file) {
-    $file->contents = file_get_contents($file->filename);
+    $file->contents = file_get_contents($file->uri);
     $return = $file;
   }
   else {
@@ -810,7 +810,7 @@ function contemplate_eval_enclosure($field, $node) {
   $xml_elements = array();
   $fid = contemplate_eval($tmplt, $node, $xml_elements);
   if (is_numeric($fid)) {
-    $file = db_fetch_object(db_query('SELECT * FROM {files} WHERE fid = %d', $fid));
+    $file = db_fetch_object(db_query('SELECT * FROM {files} WHERE fid = :fid', array(':fid' => $fid)));
     return $file;
   }
   return FALSE;
