@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function contemplate_install() {
   switch ($GLOBALS['db_type']) {
