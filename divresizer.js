@@ -1,4 +1,3 @@
-// $Id$
 (function ($) {
 
 Drupal.contemplate.divResizable = function() {
