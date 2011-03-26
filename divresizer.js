@@ -4,9 +4,6 @@ Drupal.contemplate.divResizable = function() {
   $('div.resizable:not(.processed)').each(function() {
     var div = $(this).addClass('processed'), staticOffset = null;
 
-    $(this).wrap('<div class="resizable-textarea"></div>')
-      .parent().append($('<div class="grippie"></div>').mousedown(startDrag));
-
     var grippie = $('div.grippie', $(this).parent())[0];
     grippie.style.marginRight = (grippie.offsetWidth - $(this)[0].offsetWidth) +'px';
 
