@@ -292,7 +292,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['teaser']['teaser_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable">' . $intro . $example['teaser'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['teaser'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   $form['body'] = array(
@@ -336,7 +336,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['body']['body_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable">' . $intro . $example['body'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['body'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   /* START RSS STUFF */
@@ -382,7 +382,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['rss']['rss_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable">' . $intro . $example['rss'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable-div">' . $intro . $example['rss'] . '</div><div class="description">' . $example_help . '</div></div>'
   );
 
   $form['rss'][] = array(
