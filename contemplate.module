@@ -265,7 +265,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
       '#type'           => 'checkbox',
       '#title'          => '<strong>' . t('Affect teaser output') . '</strong>',
       '#default_value'  => CONTEMPLATE_TEASER_ENABLED & $template['flags'] ? TRUE : FALSE,
-      '#attributes'     => array('toggletarget' => '#edit-teaserfield'),
+      '#attributes'     => array('rel' => 'toggletarget|#edit-teaserfield'),
     );
     $form['teaser']['teaserfield'] = array(
       '#type'           => 'textarea',
