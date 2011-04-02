@@ -497,7 +497,6 @@ function contemplate_get_templates() {
 
 function contemplate_edit_type_form_submit($form, &$form_state) {
   $op = isset($_POST['op']) ? $_POST['op'] : '';
-  drupal_set_message('$form_state = <pre>'. print_r($form_state, TRUE) .'</pre>');
   if ($op == t('Delete')) {
     contemplate_delete($form_state['values']['type']);
     drupal_set_message(t('%type template has been reset.', array('%type' => drupal_ucfirst($form_state['values']['type']))));
