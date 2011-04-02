@@ -790,10 +790,30 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
  *   executed template code
  */
 function contemplate_eval($tmplt, $obj, &$xml_elements) {
+  global $user;
+
   extract((array) $obj);
   $node = $obj;
-  $teaser = $node->body['und'][0]['safe_summary'];
-  $body = $node->body['und'][0]['safe_value'];
+
+  // attempt to get the language that we need to display to the user
+  // default to the node language
+  $default_language = language_default('language');
+  $display_language = !empty($user->language) ? $user->language : $default_language;
+  $node_language = !empty($node->language) ? $node->language : 'und';
+
+  $language_to_display = (
+    isset($node->body[$display_language]) ?
+    $display_language :
+    (
+      isset($node->body[$default_language]) ?
+      $default_language :
+      $node_language
+    )
+  );
+
+  $teaser = $node->body[$language_to_display][0]['safe_summary'];
+  $body = $node->body[$language_to_display][0]['safe_value'];
+
   ob_start();
   print eval('?>' . $tmplt);
   $output = ob_get_contents();
