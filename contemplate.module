@@ -924,6 +924,7 @@ function contemplate_preprocess_node(&$vars) {
           $vars['content']['comments'] = $comments;
         }
       }
+      break;
     case 'full':
       if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
         $body = contemplate_eval($template['body'], $node, $xml_elements);
