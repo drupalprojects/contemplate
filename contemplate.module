@@ -126,7 +126,7 @@ function contemplate_system_settings() {
 /**
  * Implements hook_perm().
  */
-function contemplate_permissions() {
+function contemplate_permission() {
   return array(
     'administer templates' => array(
       'title' => t('Administer Content Templates'),
