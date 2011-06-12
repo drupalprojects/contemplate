@@ -279,7 +279,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   if (empty($template['teaser-file'])) {
-    $form['teaser']['teaser-enable'] = array(
+    $form['teaser']['teaser-enabled'] = array(
       '#type'           => 'checkbox',
       '#title'          => '<strong>'. t('Affect teaser output') .'</strong>',
       '#default_value'  => CONTEMPLATE_TEASER_ENABLED & $template['flags'] ? TRUE : FALSE,
@@ -322,7 +322,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   if (empty($template['body-file'])) {
-    $form['body']['body-enable'] = array(
+    $form['body']['body-enabled'] = array(
       '#type'           => 'checkbox',
       '#title'          => '<strong>'. t('Affect body output') .'</strong>',
       '#default_value'  => CONTEMPLATE_BODY_ENABLED & $template['flags'] ? TRUE : FALSE,
@@ -368,7 +368,7 @@ function contemplate_edit_type_form(&$form_state, $type = NULL) {
   );
 
   if (empty($template['rss-file'])) {
-    $form['rss']['rss-enable'] = array(
+    $form['rss']['rss-enabled'] = array(
       '#type'           => 'checkbox',
       '#title'          => '<strong>'. t('Affect RSS output') .'</strong>',
       '#default_value'  => CONTEMPLATE_RSS_ENABLED & $template['flags'] ? TRUE : FALSE,
@@ -534,9 +534,9 @@ function contemplate_save($edit) {
   $bodyfield    = !empty($edit['values']['bodyfield'])      ? $edit['values']['bodyfield']    : '';
   $rssfield     = !empty($edit['values']['rssfield'])       ? $edit['values']['rssfield']     : '';
   $enclosure    = !empty($edit['values']['enclosure'])      ? $edit['values']['enclosure']    : '';
-  $flags       |= !empty($edit['values']['teaser-enable'])  ? CONTEMPLATE_TEASER_ENABLED      : 0;
-  $flags       |= !empty($edit['values']['body-enable'])    ? CONTEMPLATE_BODY_ENABLED        : 0;
-  $flags       |= !empty($edit['values']['rss-enable'])     ? CONTEMPLATE_RSS_ENABLED         : 0;
+  $flags       |= !empty($edit['values']['teaser-enabled'])  ? CONTEMPLATE_TEASER_ENABLED      : 0;
+  $flags       |= !empty($edit['values']['body-enabled'])    ? CONTEMPLATE_BODY_ENABLED        : 0;
+  $flags       |= !empty($edit['values']['rss-enabled'])     ? CONTEMPLATE_RSS_ENABLED         : 0;
 
   contemplate_delete($type);
   $sql = "INSERT INTO {contemplate} (type, teaser, body, rss, enclosure, flags) VALUES ('%s', '%s', '%s', '%s', '%s', %d)";
@@ -882,6 +882,20 @@ function contemplate_cck_get_fields($type_name) {
 function contemplate_theme() {
   return array(
     'contemplate_field' => array( 'arguments' => array('element' => NULL) ),
+  );
+}
+
+/**
+ * Implementation of hook_features_api().
+ */
+function contemplate_features_api() {
+  return array(
+    'contemplate' => array(
+      'name' => t('Content Templates'),
+      'default_hook' => 'contemplate_templates',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED,
+      'file' => drupal_get_path('module', 'contemplate') .'/includes/contemplate.features.inc',
+    ),
   );
 }
 
