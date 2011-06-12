@@ -215,14 +215,18 @@ function contemplate_admin() {
     );
   }
   $header = array(
-    t('content type'),
+    t('Content type'),
     t('Teaser'),
     t('Body'),
     t('RSS'),
     '',
     '',
   );
-  return theme('table', $header, $rows);
+
+  $output = t("To Enable a Content Template, You must first 'edit template' to enable a Content Template for a Content Type.");
+  $output .= theme('table', $header, $rows);
+
+  return $output;
 }
 
 /**
