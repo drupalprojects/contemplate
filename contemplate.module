@@ -810,8 +810,9 @@ function contemplate_eval($tmplt, $obj, &$xml_elements) {
     )
   );
 
-  $teaser = $node->body[$language_to_display][0]['safe_summary'];
-  $body = $node->body[$language_to_display][0]['safe_value'];
+  //CCK supports nodes without body.
+  $teaser = (isset($node->body)) ? $node->body[$language_to_display][0]['safe_summary'] : '';
+  $body = (isset($node->body)) ? $node->body[$language_to_display][0]['safe_summary'] : '';
 
   ob_start();
   print eval('?>' . $tmplt);
