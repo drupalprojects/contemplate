@@ -475,6 +475,8 @@ function contemplate_get_template($type) {
         $types[$type->type][$field] = $file->contents;
         $types[$type->type][$field . '-file'] = $file;
         $types[$type->type]['flags'] |= $enable; // if there is a file, the field is always enabled...
+      } else {
+        $types[$type->type][$field . '-file'] = false;
       }
       $types[$type->type][$field . '-enabled'] = $types[$type->type]['flags'] & $enable ? TRUE : FALSE;
     }
