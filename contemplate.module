@@ -56,7 +56,7 @@ function contemplate_node_type_load($index, $map_array) {
 function contemplate_menu() {
   $items = array();
   $items['admin/structure/types/templates'] = array(
-    'title'             => 'Content Templates',
+    'title'             => t('Content Templates'),
     'description'       => 'Create templates to customize output of teaser and body content.',
     //'page callback'     => 'contemplate_edit_type',
     'page callback'     => 'contemplate_admin',
@@ -65,7 +65,7 @@ function contemplate_menu() {
     'weight'            => 7,
   );
   $items['admin/structure/types/manage/%node_type/template'] = array(
-    'title'             => 'Template',
+    'title'             => t('Content Template'),
     'page callback'     => 'contemplate_edit_type',
     'page arguments'    => array(4),
     'access arguments'  => array('administer templates'),
@@ -73,7 +73,7 @@ function contemplate_menu() {
     'weight'            => 10,
   );
   $items['admin/config/config/contemplate'] = array(
-    'title'             => 'Content Template Settings',
+    'title'             => t('Content Template Settings'),
     'page callback'     => 'drupal_get_form',
     'page arguments'    => array('contemplate_system_settings'),
     'access arguments'  => array('administer templates'),
@@ -88,8 +88,8 @@ function contemplate_system_settings() {
   $form = array();
   $form['contemplate_remove_node_content'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Remove $node->content from variable list.',
-    '#description' => 'When this is enabled you will not see all available variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.',
+    '#title' => t('Remove $node->content from variable list.'),
+    '#description' => t('When this is enabled you will not see all available variables while creating/editing content templates. When this is disabled you may have Fatal Errors due to going over PHP memory limit. Even though the contents of $node->content is not displayed in the variable list, they are still avaible to be used in the Content Template, they just overflow PHPs memory limit when used with many CCK Fields.'),
   );
   if (variable_get('contemplate_remove_node_content', FALSE)) {
     $form['contemplate_remove_node_content']['#attributes'] = array(
@@ -98,15 +98,15 @@ function contemplate_system_settings() {
   }
   $form['contemplate_max_recursion_depth'] = array(
     '#type' => 'textfield',
-    '#title' => 'Max recursion depth',
-    '#description' => 'How far into the node object should contemplate look? Having this set too high could cause PHP memory errors. If the above checkbox "Remove $node->content from variable list" is checked this won\'t have much of an affect.',
+    '#title' => t('Max recursion depth'),
+    '#description' => t('How far into the node object should contemplate look? Having this set too high could cause PHP memory errors. If the above checkbox "Remove $node->content from variable list" is checked this won\'t have much of an affect.'),
     '#default_value' => variable_get('contemplate_max_recursion_depth', 10),
     '#size' => 5,
   );
   $form['contemplate_before_search_index'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Process template before indexing for search',
-    '#description' => 'Do you want to process the template before the nodes are indexed for search?',
+    '#title' => t('Process template before indexing for search'),
+    '#description' => t('Do you want to process the template before the nodes are indexed for search?'),
   );
   if (variable_get('contemplate_before_search_index', FALSE)) {
     $form['contemplate_before_search_index']['#attributes'] = array(
