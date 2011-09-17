@@ -736,11 +736,13 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
         else {
           if (is_int($field)) {
             $field = $parents . '[' . $field . ']';
-          }
-          else {
+          } elseif ($field == 'und') {
+            // show $node->language for insertion into template http://drupal.org/node/1040748
+            $field = $parents . '[$node->language]';
+          } else {
             if ($field == 'fid') { // make a note of the fields named "fid"
               $_contemplate_fids[] = "\$node->" . $parents . '[\'' . $field . '\']';
-            }
+            } 
             $field = $parents . '[\'' . $field . '\']';
           }
         }
