@@ -64,13 +64,6 @@ function contemplate_menu() {
     'type'              => MENU_LOCAL_TASK,
     'weight'            => 7,
   );
-  $items['admin/content/templates'] = array(
-    'title'             => 'Content Templates',
-    'description'       => 'Create templates to customize output of teaser and body content.',
-    'page callback'     => 'drupal_goto',
-    'page arguments'    => array('admin/content/types/templates'),
-    'access arguments'  => array('administer templates'),
-  );
   $items['admin/structure/types/manage/%node_type/template'] = array(
     'title'             => 'Template',
     'page callback'     => 'contemplate_edit_type',
