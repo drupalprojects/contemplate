@@ -63,8 +63,15 @@ this again when making changes to the content of the templates.
 Configuring your content templates
 
 - Enable the Content Template module in admin/modules
-- Visit structure/types/templates and use the 'edit template' link to start 
-  editing your template for which ever content type you require.
+- Make sure you have some nodes already entered in your system for the content 
+  type you wish to build a template for.
+- Enable the 'help' module if you need a little more information about using 
+  this module.
+- Visit structure -> content types -> content templates and use the 
+  'edit template' link to start editing the template for which ever content type
+  you require, available variables are in the 'Variables' collapsible textarea
+  under each template, click on a property in that field to place it into your
+  template
 - Make sure 'Affect body output' checkbox is clicked and then you can begin
   to edit your template.
 - Press 'Save'
