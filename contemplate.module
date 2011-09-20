@@ -674,7 +674,7 @@ function contemplate_examples($type) {
     $routput = contemplate_array_variables((array) $views['teaser'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
   }
   else {
-    $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type->type));
+    $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type));
     $toutput = $boutput = $routput = $error;
   }
   if ($recursion_limit_hit) {
