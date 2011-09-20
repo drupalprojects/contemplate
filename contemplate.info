@@ -2,6 +2,7 @@ name = Content Templates
 description = Create templates to customize output of teaser and body content.
 package = CCK
 core = 7.x
+configure = admin/config/contemplate
 files[] = contemplate.module
 files[] = contemplate.test
 
