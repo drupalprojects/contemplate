@@ -327,7 +327,6 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
       '#prefix'         => '<div class="contemplate-input">',
       '#suffix'         => '</div>',
       '#attributes'     => ((CONTEMPLATE_BODY_ENABLED & $template['flags']) ? '' : array('disabled' => 'true')),
-
     );
   }
   else {
@@ -415,7 +414,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
 
   $form['type'] = array(
     '#type' => 'hidden',
-    '#value' => $type->type,
+    '#value' => $type,
   );
 
 
@@ -447,7 +446,7 @@ function contemplate_edit_type($type = array()) {
   }
   else {
     contemplate_refresh_files();
-    return drupal_get_form('contemplate_edit_type_form', $type);
+    return drupal_get_form('contemplate_edit_type_form', $type->type);
   }
 }
 
@@ -459,18 +458,17 @@ function contemplate_edit_type($type = array()) {
 function contemplate_get_template($type) {
   //only load each template once per page hit
   static $types = array();
-
-  if (!isset($types[$type->type])) {
-    $types[$type->type] = array();
-    $types[$type->type]['flags'] = 0;
+  if (!isset($types[$type])) {
+    $types[$type] = array();
+    $types[$type]['flags'] = 0;
     // first check to see what's stored in the contemplate table
-    $result = db_query("SELECT * FROM {contemplate} WHERE type = :type", array(':type' => $type->type));
+    $result = db_query("SELECT * FROM {contemplate} WHERE type = :type", array(':type' => $type));
     foreach ($result as $record) {
-      $types[$type->type] = (array)$record;
+      $types[$type] = (array)$record;
     }
 
-    if (isset($types[$type->type]['flags']) && empty($types[$type->type]['flags'])) {
-      $types[$type->type]['flags'] = 0;
+    if (isset($types[$type]['flags']) && empty($types[$type]['flags'])) {
+      $types[$type]['flags'] = 0;
     }
     // now check to see if there are files
     $fields = array(
@@ -480,16 +478,16 @@ function contemplate_get_template($type) {
     );
     foreach ($fields as $field => $enable) {
       if ($file = contemplate_get_file($type, $field)) {
-        $types[$type->type][$field] = $file->contents;
-        $types[$type->type][$field . '-file'] = $file;
-        $types[$type->type]['flags'] |= $enable; // if there is a file, the field is always enabled...
+        $types[$type][$field] = $file->contents;
+        $types[$type][$field . '-file'] = $file;
+        $types[$type]['flags'] |= $enable; // if there is a file, the field is always enabled...
       } else {
-        $types[$type->type][$field . '-file'] = false;
+        $types[$type][$field . '-file'] = false;
       }
-      $types[$type->type][$field . '-enabled'] = $types[$type->type]['flags'] & $enable ? TRUE : FALSE;
+      $types[$type][$field . '-enabled'] = $types[$type]['flags'] & $enable ? TRUE : FALSE;
     }
   }
-  return $types[$type->type];
+  return $types[$type];
 }
 
 /**
@@ -500,7 +498,7 @@ function contemplate_get_template($type) {
  */
 function contemplate_get_templates() {
   foreach (node_type_get_types() AS $r) {
-    $templates[$r->type] = contemplate_get_template($r);
+    $templates[$r->type] = contemplate_get_template($r->type);
   }
   return $templates;
 }
@@ -601,11 +599,11 @@ function contemplate_refresh_files() {
  */
 function contemplate_get_file($type, $field) {
   $files = contemplate_available_files();
-  if (isset($files['node-' . $type->type . '-' . $field . '.tpl'])) {
-    $file = $files['node-' . $type->type . '-' . $field . '.tpl'];
+  if (isset($files['node-' . $type . '-' . $field . '.tpl'])) {
+    $file = $files['node-' . $type . '-' . $field . '.tpl'];
   }
-  elseif (isset($files['node-' . $type->type . '.tpl'])) {
-    $file = $files['node-' . $type->type . '.tpl'];
+  elseif (isset($files['node-' . $type . '.tpl'])) {
+    $file = $files['node-' . $type . '.tpl'];
   }
   elseif (isset($files['node.tpl'])) {
     $file = $files['node.tpl'];
@@ -632,7 +630,7 @@ function contemplate_get_file($type, $field) {
  */
 function contemplate_node_views($type) {
   // get the nid of the latest node of this type
-  $result = db_query("SELECT nid FROM {node} WHERE type = :type ORDER BY created DESC", array(':type' => $type->type));
+  $result = db_query("SELECT nid FROM {node} WHERE type = :type ORDER BY created DESC", array(':type' => $type));
   foreach ($result as $record) {
     $nid = $record->nid;
   }
@@ -914,7 +912,8 @@ function theme_contemplate_field(&$field) {
  */
 function contemplate_preprocess_node(&$vars) {
   $node = $vars['node'];
-  if ($template = contemplate_get_template(node_type_get_type($node))) {
+  $node_type = node_type_get_type($node);
+  if ($template = contemplate_get_template($node_type->type)) {
     switch ($vars['view_mode']) {
       case 'teaser':
       if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
