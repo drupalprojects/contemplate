@@ -257,7 +257,7 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   // make sure calls from simpletest dont place 'disabled' attribute
   $enabled_form_attribute = preg_match('/simpletest/i',$_SERVER['HTTP_USER_AGENT']) ? array() : array('disabled' => 'true');  
   
-  if ($default = contemplate_cck_get_fields($type)) {
+  if ($default = contemplate_get_fields($type)) {
     $default_teaser = $default_body = $default;
   }
   else {
@@ -853,7 +853,7 @@ function contemplate_eval_enclosure($field, $node) {
 /**
  * get fields for the template edit form
  */
-function contemplate_cck_get_fields($type_name) {
+function contemplate_get_fields($type_name) {
   if (module_exists('field')) {
     $return = array();
     $instances = field_read_instances(array('entity_type' => 'node', 'bundle' => $type_name));
