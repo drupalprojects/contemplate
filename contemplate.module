@@ -856,6 +856,7 @@ function contemplate_eval_enclosure($field, $node) {
 function contemplate_get_fields($type_name) {
   if (module_exists('field')) {
     $return = array();
+    $return[] = '<?php $fields = field_attach_view(\'node\', $node, \'full\', \'en\'); ?>' . "\n";    
     $instances = field_read_instances(array('entity_type' => 'node', 'bundle' => $type_name));
     foreach($instances as $field) {
       $return[] = theme('contemplate_field', $field); 	
@@ -898,9 +899,10 @@ function theme_contemplate_field($field) {
   
   // Drupal Fields should come as an array and be treated as such
   if (preg_match('/^field_/', $field['field_name'])) {
-    $output .= '    <?php foreach ((array)$node->' . $field['field_name'] . '[$node->language] as $item) { ?>' . "\n";
-    $output .= '      <div class="field-item"><?php print check_plain($item[\'value\']); ?></div>' . "\n";
-    $output .= '    <?php } ?>' . "\n";
+  	// @todo: still cant get fine grain build out of complex fields, render() renders all the field values
+/*  	$output .= '    <?php foreach ( $fields as $field_name => $field ) { ?>' . "\n"; */
+    $output .= '      <div class="field-item"><?php print render( $fields[\''.$field['field_name'].'\'] ); ?></div>' . "\n";    	
+/*    $output .= '    <?php } ?>' . "\n"; */
   }
   else {
     $output .= '      <div class="field-item"><?php print $node->'.$field['field_name'].'[$node->language][0][\'safe_value\']; ?></div>'."\n";
