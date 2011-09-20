@@ -100,6 +100,11 @@ class ContemplateNodeTypeTemplating extends DrupalWebTestCase {
     $this->assertText( $this->test_body );
   }
 
+  function testPageTemplateDelete() {
+    $edit = array();
+    $this->drupalPost('admin/structure/types/manage/page/template', $edit, t('Delete'));
+    $this->assertText( 'template has been reset' ); 
+  }
 
 
 }
