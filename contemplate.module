@@ -721,15 +721,6 @@ function contemplate_examples($type) {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type));
     $toutput = $boutput = $routput = $error;
   }
-  /*
-  if ($recursion_limit_hit) {
-    $message = t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto ' . l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') . '. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit));
-    if (variable_get('error_level', 1)) {
-      //drupal_set_message($message, 'warning');
-    }
-    watchdog('contemplate', $message, array(), WATCHDOG_ALERT);
-  }
-  */
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
 
