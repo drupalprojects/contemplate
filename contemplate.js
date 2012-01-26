@@ -39,6 +39,31 @@ function insertAtCursor(myField, myValue) {
         }
         $(target + '-keys').css('opacity', $(this).is(':checked') ? 1 : .2);
       });
+    // allow the user to preview the template as they are editing
+
+      $('input#edit-teaser-preview:not(.contemplate_processed), input#edit-body-preview:not(.contemplate_processed)')
+      .addClass('contemplate_processed').click(function() {
+        var id = $(this).attr('id');
+        var template = '';
+        var type = '';
+        switch(id) {
+          case 'edit-body-preview':
+            template = $('#edit-bodyfield').val();
+            type = 'body';
+            break;
+          case 'edit-teaser-preview':
+            template = $('#edit-teaserfield').val();
+            type = 'teaser';
+            break;
+        }
+        $.post(Drupal.settings.basePath + 'contemplate/ajax/preview/' + Drupal.settings.contemplate.example_nid + '/' + type, template, function(data) {
+          $('#' + id).parent().find('div.messages').remove();
+          $('#' + id).parent().find('div.content').remove();
+          $('#' + id).after('<div class="content">' + data.content + '</div>').after(data.messages);
+          Drupal.attachBehaviors();
+        }, 'json');
+        return false;
+      });
     }
   }
 

@@ -24,10 +24,10 @@ function contemplate_help($path, $arg) {
     break;
     case 'admin/structure/types/templates':
       return '<p>'.t('Configure Content Templates for each content type available, click on the !link link to create and enable a template for that type.', array('!link' => '<strong><i>edit template</i></strong>') ).'</p>';
-    break;        
+    break;
     case 'admin/config/contemplate':
       return '<p>'.t('This is the settings page for Content Template (contemplate) module, to enable templates for each content type !link',array('!link' => l('click here','admin/structure/types/templates'))).'</p>';
-    
+
     break;
     case 'admin/help#contemplate':
       $paragraphs = array();
@@ -92,7 +92,37 @@ function contemplate_menu() {
     'page arguments'    => array('contemplate_system_settings'),
     'access arguments'  => array('administer templates'),
   );
+  $items['contemplate/ajax/preview/%node/%'] = array(
+    'title'             => 'preview of the node when passed through',
+    'description'       => 'so the user can see what the node will look like with the current code',
+    'page callback'     => 'contemplate_ajax_preview',
+    'page arguments'    => array(3, 4),
+    'access arguments'  => array('administer templates'),
+    'type'              => MENU_CALLBACK,
+  );
   return $items;
+}
+
+/**
+ * provide ajax callback for template editors
+ */
+function contemplate_ajax_preview($node, $type) {
+  $template = file_get_contents('php://input');
+  $xml_elements = array();
+  $fieldset = array(
+    '#type'         => 'fieldset',
+    '#title'        => t('Content Template results'),
+    //'#description'  => t('This is how your content will look after the template is applied, except some CSS differences.'),
+    '#collapsible'  => TRUE,
+    '#collapsed'    => FALSE,
+    '#value'        => contemplate_eval($template, $node, $xml_elements),
+  );
+  $data = array(
+    'messages'  => theme('status_messages', array()),
+    'content'   => theme('fieldset', array('element' => $fieldset)),
+  );
+
+  drupal_json_output($data);
 }
 
 /**
@@ -100,7 +130,7 @@ function contemplate_menu() {
  */
 function contemplate_system_settings() {
   $form = array();
-  
+
   $form['contemplate_remove_node_content'] = array(
     '#type' => 'checkbox',
     '#title' => t('Remove $node->content from variable list.'),
@@ -255,8 +285,8 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
 
   // http://dgtlmoon.com/simpletest_disabled_field_failed_to_set_field
   // make sure calls from simpletest dont place 'disabled' attribute
-  $enabled_form_attribute = preg_match('/simpletest/i',$_SERVER['HTTP_USER_AGENT']) ? array() : array('disabled' => 'true');  
-  
+  $enabled_form_attribute = preg_match('/simpletest/i',$_SERVER['HTTP_USER_AGENT']) ? array() : array('disabled' => 'true');
+
   if ($default = contemplate_get_fields($type)) {
     $default_teaser = $default_body = $default;
   }
@@ -295,6 +325,10 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
       '#value'          => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['teaser-file']->filename)),
     );
   }
+  $form['teaser']['teaser_preview'] = array(
+    '#type'             => 'submit',
+    '#value'            => t('Preview'),
+  );
 
   $form['teaser']['teaser_example'] = array(
     '#type'             => 'fieldset',
@@ -338,6 +372,10 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
       '#value'          => t('<p>This template is being read from<br />%file<br />Please make changes to this file or remove it to continue editing here.</p>', array('%file' => $template['body-file']->filename)),
     );
   }
+  $form['body']['body_preview'] = array(
+    '#type'             => 'submit',
+    '#value'            => t('Preview'),
+  );
 
   $form['body']['body_example'] = array(
     '#type'             => 'fieldset',
@@ -523,7 +561,7 @@ function contemplate_save($edit) {
 
   $type =  $edit['values']['type'];
   $flags = false;
-  
+
   $teaserfield  = !empty($edit['values']['teaserfield'])    ? $edit['values']['teaserfield']  : '';
   $bodyfield    = !empty($edit['values']['bodyfield'])      ? $edit['values']['bodyfield']    : '';
   $rssfield     = !empty($edit['values']['rssfield'])       ? $edit['values']['rssfield']     : '';
@@ -669,6 +707,12 @@ function contemplate_examples($type) {
   drupal_add_css($path . '/contemplate.css');
   $recursion_limit_hit = 0;
   if ($views = contemplate_node_views($type)) {
+    $settings = array(
+      'contemplate' => array(
+        'example_nid' => $views['body']->nid,
+      ),
+    );
+    drupal_add_js($settings, 'setting');
     $boutput = contemplate_array_variables((array) $views['body'], 'bodyfield', FALSE, FALSE, 0, $recursion_limit_hit);
     $toutput = contemplate_array_variables((array) $views['teaser'], 'teaserfield', FALSE, FALSE, 0, $recursion_limit_hit);
     $routput = contemplate_array_variables((array) $views['teaser'], 'rss', FALSE, FALSE, 0, $recursion_limit_hit);
@@ -677,6 +721,7 @@ function contemplate_examples($type) {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type));
     $toutput = $boutput = $routput = $error;
   }
+  /*
   if ($recursion_limit_hit) {
     $message = t('While traversing node variables your recursion limit of %limit was hit %recursion_limit_hit times. For more information about this error goto ' . l('http://drupal.org/node/230885', 'http://drupal.org/node/230885') . '. This situation will not effect the operation of Content Template, but it may not show you all available variables on this page. This message will only appear on this page.', array('%limit' => variable_get('contemplate_max_recursion_depth', 10), '%recursion_limit_hit' => $recursion_limit_hit));
     if (variable_get('error_level', 1)) {
@@ -684,6 +729,7 @@ function contemplate_examples($type) {
     }
     watchdog('contemplate', $message, array(), WATCHDOG_ALERT);
   }
+  */
   return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
 }
 
@@ -745,7 +791,7 @@ function contemplate_array_variables($array, $target, $parents = FALSE, $object 
           } else {
             if ($field == 'fid') { // make a note of the fields named "fid"
               $_contemplate_fids[] = "\$node->" . $parents . '[\'' . $field . '\']';
-            } 
+            }
             $field = $parents . '[\'' . $field . '\']';
           }
         }
@@ -856,12 +902,12 @@ function contemplate_eval_enclosure($field, $node) {
 function contemplate_get_fields($type_name) {
   if (module_exists('field')) {
     $return = array();
-    $return[] = '<?php $fields = field_attach_view(\'node\', $node, \'full\', \'en\'); ?>' . "\n";    
+    $return[] = '<?php $fields = field_attach_view(\'node\', $node, \'full\', \'en\'); ?>' . "\n";
     $instances = field_read_instances(array('entity_type' => 'node', 'bundle' => $type_name));
     foreach($instances as $field) {
-      $return[] = theme('contemplate_field', $field); 	
+      $return[] = theme('contemplate_field', $field);
     }
-    
+
     if (count($return)) {
       $return = implode("\n", $return);
     }
@@ -896,12 +942,12 @@ function theme_contemplate_field($field) {
   $output = '<div class="field field-type-' . strtr($field['widget']['type'], '_', '-') . ' field-' . strtr($field['field_name'], '_', '-') . '">' . "\n";
   $output .= '  <h3 class="field-label">' . $field['label'] . '</h3>' . "\n";
   $output .= '  <div class="field-items">' . "\n";
-  
+
   // Drupal Fields should come as an array and be treated as such
   if (preg_match('/^field_/', $field['field_name'])) {
   	// @todo: still cant get fine grain build out of complex fields, render() renders all the field values
 /*  	$output .= '    <?php foreach ( $fields as $field_name => $field ) { ?>' . "\n"; */
-    $output .= '      <div class="field-item"><?php print render( $fields[\''.$field['field_name'].'\'] ); ?></div>' . "\n";    	
+    $output .= '      <div class="field-item"><?php print render( $fields[\''.$field['field_name'].'\'] ); ?></div>' . "\n";
 /*    $output .= '    <?php } ?>' . "\n"; */
   }
   else {
@@ -923,6 +969,7 @@ function theme_contemplate_field($field) {
 function contemplate_preprocess_node(&$vars) {
   $node = $vars['node'];
   $node_type = node_type_get_type($node);
+  $xml_elements = array();
   if ($template = contemplate_get_template($node_type->type)) {
     switch ($vars['view_mode']) {
       case 'teaser':
