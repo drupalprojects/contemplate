@@ -338,7 +338,8 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['teaser']['teaser_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['teaser'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-teaserfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['teaser'] . '</div><div class="description">' . $example_help . '</div></div>' .
+    $example['teaser_krumo'],
   );
 
   $form['body'] = array(
@@ -385,7 +386,8 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['body']['body_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['body'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-bodyfield-keys" class="contemplate-scroller resizable-div">' . $intro . $example['body'] . '</div><div class="description">' . $example_help . '</div></div>'.
+    $example['body_krumo'],
   );
 
   /* START RSS STUFF */
@@ -431,7 +433,8 @@ function contemplate_edit_type_form($form, &$form_state, $type = NULL) {
   );
 
   $form['rss']['rss_example']['example'] = array(
-    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable-div">' . $intro . $example['rss'] . '</div><div class="description">' . $example_help . '</div></div>'
+    '#markup'           => '<div class="contemplate-tips form-item"><div id="edit-rss-keys" class="contemplate-scroller resizable-div">' . $intro . $example['rss'] . '</div><div class="description">' . $example_help . '</div></div>' .
+    $example['teaser_krumo'],
   );
 
   $form['rss'][] = array(
@@ -721,7 +724,7 @@ function contemplate_examples($type) {
     $error = t('No %type content items exist to use as an example. Please create a %type item and then come back here to see an output of its parts.', array('%type' => $type));
     $toutput = $boutput = $routput = $error;
   }
-  return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput);
+  return array('body' => $boutput, 'teaser' => $toutput, 'rss' => $routput, 'body_krumo' =>  (function_exists('kprint_r') ? kprint_r($views['body'], TRUE, '$node') : ''), 'teaser_krumo' => (function_exists('kprint_r') ? kprint_r($views['teaser'], TRUE, '$node') : ''));
 }
 
 
