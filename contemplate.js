@@ -49,7 +49,7 @@ function insertAtCursor(myField, myValue) {
         switch(id) {
           case 'edit-body-preview':
             template = $('#edit-bodyfield').val();
-            type = 'body';
+            type = 'full';
             break;
           case 'edit-teaser-preview':
             template = $('#edit-teaserfield').val();

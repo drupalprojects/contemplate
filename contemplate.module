@@ -108,6 +108,7 @@ function contemplate_menu() {
  */
 function contemplate_ajax_preview($node, $type) {
   $template = file_get_contents('php://input');
+  $node->build = node_view($node, $type);
   $xml_elements = array();
   $fieldset = array(
     '#type'         => 'fieldset',
@@ -182,6 +183,7 @@ function contemplate_node_view($node, $build_mode) {
       if ($template = contemplate_get_template($node->type)) {
         if (CONTEMPLATE_RSS_ENABLED & $template['flags'] && trim($template['rss'])) { // only if there's content in teaser field
           $xml_elements = array();
+          $node->build = node_view($node, 'teaser');
           $rss = contemplate_eval($template['rss'], $node, $xml_elements);
           // set both teaser and body because we don't know how they've set Drupal
           $node->teaser = $rss;
@@ -684,8 +686,8 @@ function contemplate_node_views($type) {
     //$bodynode = contemplate_template_node_view(node_load($nid), 'full');
     //$teasernode = contemplate_template_node_view(node_load($nid), 'teaser');
     $teasernode = $bodynode = node_load($nid);
-    node_build_content($bodynode , 'full');
-    node_build_content($teasernode, 'teaser');
+    $bodynode->build = node_view($bodynode, 'full');
+    $bodynode->build = node_view($teasernode, 'teaser');
     return array('body' => $bodynode, 'teaser' => $teasernode);
   }
   else {
@@ -968,6 +970,7 @@ function contemplate_preprocess_node(&$vars) {
     switch ($vars['view_mode']) {
       case 'teaser':
       if (CONTEMPLATE_TEASER_ENABLED & $template['flags'] && trim($template['teaser'])) { // only if there's content in teaser field
+        $node->build = node_view($node, 'teaser');
         $teaser = contemplate_eval($template['teaser'], $node, $xml_elements);
         // because we are using the template we need to remove everything else
         // from the content array except the comments and the links, then
@@ -990,6 +993,7 @@ function contemplate_preprocess_node(&$vars) {
       break;
     case 'full':
       if (CONTEMPLATE_BODY_ENABLED & $template['flags'] && trim($template['body'])) { // only if there's content in the body field
+        $node->build = node_view($node, 'full');
         $body = contemplate_eval($template['body'], $node, $xml_elements);
         // because we are using the template we need to remove everything else
         // from the content array except the comments and the links, then
